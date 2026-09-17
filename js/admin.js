@@ -391,7 +391,6 @@ class AdminPanel {
           <p style="font-size:0.88rem; color:var(--text-muted); margin-top:2px;">আবেদনকৃত সদস্যদের অনুমোদন, সংশোধন ও ডিলিট করুন</p>
         </div>
         <div style="display:flex; gap:0.5rem;">
-          <button class="btn btn-sm" style="background:#dc2626; color:#fff; border:none;" onclick="adminPanel.confirmClearAllMembers()"><i class="fas fa-trash-alt"></i> সকল সদস্য ডিলিট করুন</button>
           <button class="btn btn-primary btn-sm" onclick="adminPanel.showAddMemberModal()"><i class="fas fa-user-plus"></i> নতুন সদস্য যোগ করুন</button>
         </div>
       </div>
