@@ -2,7 +2,7 @@
    Ek Mutho Khabar Manobik Foundation - Local Database & Dynamic Balance Engine
    ========================================================================== */
 
-const DB_KEY = 'emkf_database_v8';
+const DB_KEY = 'emkf_database_v9';
 
 // Initial Seed Data
 const defaultDatabase = {
@@ -955,8 +955,11 @@ const defaultDatabase = {
 
   beneficiariesCount: 0,
   volunteersCount: 0,
-  mealSponsors: {},
-  settings: { heroImage: 'img/hero-cover.jpg' },
+  userCredentials: {
+    'hrfbd': 'HRFBD2026',
+    'superadmin': 'HRFBD2026',
+    'admin': 'HRFBD2026'
+  },
   news: [],
   bloodDonors: [],
   quickPledges: []
