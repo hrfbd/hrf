@@ -1282,14 +1282,7 @@ class Database {
       };
     });
 
-    const donorUniqueSet = new Set();
-    (this.data.members || []).forEach(m => {
-      if (m.id || m.phone || m.name) donorUniqueSet.add(m.id || m.phone || m.name);
-    });
-    (this.data.donations || []).forEach(d => {
-      if (d.donorPhone || d.donorName || d.id) donorUniqueSet.add(d.donorPhone || d.donorName || d.id);
-    });
-    const totalDonorsCount = Math.max(donorUniqueSet.size, (this.data.members ? this.data.members.length : 0));
+    const totalDonorsCount = (this.data.members || []).length;
 
     return {
       openingBalance: this.data.openingBalance,
