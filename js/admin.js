@@ -477,97 +477,87 @@ class AdminPanel {
   showAddMemberModal(memberId = null) {
     const isEdit = Boolean(memberId);
     const m = isEdit ? db.data.members.find(x => x.id === memberId) : null;
+    const title = isEdit ? 'সদস্যের তথ্য সম্পাদনা করুন' : 'নতুন সদস্যের পূর্ণ তথ্য সংযোজন';
 
-    const modalHtml = `
-      <div class="modal-content" style="max-width:560px; max-height:90vh; overflow-y:auto; padding:1.75rem;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
-          <h3 style="font-size:1.2rem; font-weight:700; color:var(--primary-deep); margin:0;">
-            <i class="fas ${isEdit ? 'fa-user-edit' : 'fa-user-plus'}" style="color:var(--primary-mid);"></i>
-            ${isEdit ? 'সদস্যের তথ্য সম্পাদনা করুন' : 'নতুন সদস্যের পূর্ণ তথ্য সংযোজন'}
-          </h3>
-          <button type="button" onclick="closeGlobalModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-muted);">&times;</button>
+    const formHtml = `
+      <form onsubmit="adminPanel.handleSaveMemberSubmit(event, '${memberId || ''}'); return false;" style="background:#ffffff; padding:0.5rem; border-radius:var(--radius-md);">
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label class="form-label" style="font-weight:600; color:var(--text-dark);">সদস্যের পূর্ণ নাম <span style="color:red;">*</span></label>
+          <input type="text" id="adm-mem-name" class="form-control" required placeholder="যেমন: মো: নাজমুল ইসলাম" value="${m ? m.name : ''}">
         </div>
 
-        <form onsubmit="adminPanel.handleSaveMemberSubmit(event, '${memberId || ''}')">
-          <div class="form-group" style="margin-bottom:0.85rem;">
-            <label class="form-label" style="font-weight:600;">সদস্যের পূর্ণ নাম <span style="color:red;">*</span></label>
-            <input type="text" id="adm-mem-name" class="form-control" required placeholder="যেমন: মো: নাজমুল ইসলাম" value="${m ? m.name : ''}">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
+          <div class="form-group">
+            <label class="form-label" style="font-weight:600; color:var(--text-dark);">মোবাইল নম্বর <span style="color:red;">*</span></label>
+            <input type="tel" id="adm-mem-phone" class="form-control" required placeholder="017XXXXXXXX" value="${m ? m.phone : ''}">
           </div>
+          <div class="form-group">
+            <label class="form-label" style="font-weight:600; color:var(--text-dark);">হোয়াটসঅ্যাপ নম্বর</label>
+            <input type="tel" id="adm-mem-whatsapp" class="form-control" placeholder="017XXXXXXXX" value="${m ? (m.whatsapp || m.phone) : ''}">
+          </div>
+        </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
-            <div class="form-group">
-              <label class="form-label" style="font-weight:600;">মোবাইল নম্বর <span style="color:red;">*</span></label>
-              <input type="tel" id="adm-mem-phone" class="form-control" required placeholder="017XXXXXXXX" value="${m ? m.phone : ''}">
-            </div>
-            <div class="form-group">
-              <label class="form-label" style="font-weight:600;">হোয়াটসঅ্যাপ নম্বর</label>
-              <input type="tel" id="adm-mem-whatsapp" class="form-control" placeholder="017XXXXXXXX" value="${m ? (m.whatsapp || m.phone) : ''}">
-            </div>
-          </div>
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label class="form-label" style="font-weight:600; color:var(--text-dark);">পেশা, পদবী ও ব্যবসা/প্রতিষ্ঠানের নাম</label>
+          <input type="text" id="adm-mem-occupation" class="form-control" placeholder="যেমন: রেমিটেন্স যোদ্ধা, কুয়েত প্রবাসী / স্বত্বাধিকারী: মেসার্স রিসান ট্রেড" value="${m ? (m.occupation || '') : ''}">
+        </div>
 
-          <div class="form-group" style="margin-bottom:0.85rem;">
-            <label class="form-label" style="font-weight:600;">পেশা, পদবী ও ব্যবসা/প্রতিষ্ঠানের নাম</label>
-            <input type="text" id="adm-mem-occupation" class="form-control" placeholder="যেমন: রেমিটেন্স যোদ্ধা, কুয়েত প্রবাসী / স্বত্বাধিকারী: মেসার্স রিসান ট্রেড" value="${m ? (m.occupation || '') : ''}">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
+          <div class="form-group">
+            <label class="form-label" style="font-weight:600; color:var(--text-dark);">জেলা / পূর্ণ ঠিকানা</label>
+            <input type="text" id="adm-mem-district" class="form-control" placeholder="যেমন: রৌমারী, কুড়িগ্রাম" value="${m ? (m.district || '') : ''}">
           </div>
+          <div class="form-group">
+            <label class="form-label" style="font-weight:600; color:var(--text-dark);">সদস্য ক্যাটাগরি</label>
+            <select id="adm-mem-type" class="form-control">
+              <option value="Monthly" ${m && m.type === 'Monthly' ? 'selected' : ''}>মাসিক দায়িত্বশীল সদস্য (Monthly Member)</option>
+              <option value="3-Month" ${m && m.type === '3-Month' ? 'selected' : ''}>৩/৬/১২ মাসের দাতা (3-Month Donor)</option>
+              <option value="Life" ${m && m.type === 'Life' ? 'selected' : ''}>আজীবন সদস্য (Life Member)</option>
+              <option value="Volunteer" ${m && m.type === 'Volunteer' ? 'selected' : ''}>স্বেচ্ছাসেবক (Volunteer)</option>
+            </select>
+          </div>
+        </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
-            <div class="form-group">
-              <label class="form-label" style="font-weight:600;">জেলা / পূর্ণ ঠিকানা</label>
-              <input type="text" id="adm-mem-district" class="form-control" placeholder="যেমন: রৌমারী, কুড়িগ্রাম" value="${m ? (m.district || '') : ''}">
-            </div>
-            <div class="form-group">
-              <label class="form-label" style="font-weight:600;">সদস্য ক্যাটাগরি</label>
-              <select id="adm-mem-type" class="form-control">
-                <option value="Monthly" ${m && m.type === 'Monthly' ? 'selected' : ''}>মাসিক দায়িত্বশীল সদস্য (Monthly Member)</option>
-                <option value="3-Month" ${m && m.type === '3-Month' ? 'selected' : ''}>৩/৬/১২ মাসের দাতা (3-Month Donor)</option>
-                <option value="Life" ${m && m.type === 'Life' ? 'selected' : ''}>আজীবন সদস্য (Life Member)</option>
-                <option value="Volunteer" ${m && m.type === 'Volunteer' ? 'selected' : ''}>স্বেচ্ছাসেবক (Volunteer)</option>
-              </select>
-            </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
+          <div class="form-group">
+            <label class="form-label" style="font-weight:600; color:var(--text-dark);">অনুদান / প্রতিশ্রুত টাকা (৳)</label>
+            <input type="number" id="adm-mem-amount" class="form-control" required value="${m ? m.amount : 1000}" min="0">
           </div>
+          <div class="form-group">
+            <label class="form-label" style="font-weight:600; color:var(--text-dark);">অনুমোদন স্ট্যাটাস</label>
+            <select id="adm-mem-status" class="form-control">
+              <option value="Approved" ${!m || m.status === 'Approved' || m.status === 'Verified' ? 'selected' : ''}>অনুমোদিত (Approved)</option>
+              <option value="Pending" ${m && m.status === 'Pending' ? 'selected' : ''}>অপেক্ষমাণ (Pending)</option>
+            </select>
+          </div>
+        </div>
 
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
-            <div class="form-group">
-              <label class="form-label" style="font-weight:600;">অনুদান / প্রতিশ্রুত টাকা (৳)</label>
-              <input type="number" id="adm-mem-amount" class="form-control" required value="${m ? m.amount : 1000}" min="0">
-            </div>
-            <div class="form-group">
-              <label class="form-label" style="font-weight:600;">অনুমোদন স্ট্যাটাস</label>
-              <select id="adm-mem-status" class="form-control">
-                <option value="Approved" ${!m || m.status === 'Approved' || m.status === 'Verified' ? 'selected' : ''}>অনুমোদিত (Approved)</option>
-                <option value="Pending" ${m && m.status === 'Pending' ? 'selected' : ''}>অপেক্ষমাণ (Pending)</option>
-              </select>
-            </div>
-          </div>
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label class="form-label" style="font-weight:600; color:var(--text-dark);">ছবি লিংক (PostIMG / Web URL / ছবির লিংক)</label>
+          <input type="text" id="adm-mem-image" class="form-control" placeholder="https://i.postimg.cc/..." value="${m ? (m.profileImage || '') : ''}">
+        </div>
 
-          <div class="form-group" style="margin-bottom:0.85rem;">
-            <label class="form-label" style="font-weight:600;">ছবি লিংক (PostIMG / Web URL / ছবির লিংক)</label>
-            <input type="text" id="adm-mem-image" class="form-control" placeholder="https://i.postimg.cc/..." value="${m ? (m.profileImage || '') : ''}">
-          </div>
+        <div class="form-group" style="margin-bottom:1.25rem;">
+          <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:600; color:var(--primary-deep);">
+            <input type="checkbox" id="adm-mem-probashi" ${m && m.isProbashi ? 'checked' : ''}>
+            <span>প্রবাসী / রেমিটেন্স যোদ্ধা সদস্য (Probashi Member)</span>
+          </label>
+        </div>
 
-          <div class="form-group" style="margin-bottom:1.25rem;">
-            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:600; color:var(--primary-deep);">
-              <input type="checkbox" id="adm-mem-probashi" ${m && m.isProbashi ? 'checked' : ''}>
-              <span>প্রবাসী / রেমিটেন্স যোদ্ধা সদস্য (Probashi Member)</span>
-            </label>
-          </div>
-
-          <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
-            <button type="button" class="btn btn-secondary" onclick="closeGlobalModal()">বাতিল</button>
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-save"></i> ${isEdit ? 'তথ্য আপডেট করুন' : 'সদস্য তথ্য জমা দিন'}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">বাতিল</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> ${isEdit ? 'তথ্য আপডেট করুন' : 'সদস্য তথ্য জমা দিন'}
+          </button>
+        </div>
+      </form>
     `;
 
-    document.getElementById('global-modal').innerHTML = modalHtml;
-    document.getElementById('global-modal').classList.add('active');
+    openModal(title, formHtml);
   }
 
   handleSaveMemberSubmit(e, memberId) {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     const name = document.getElementById('adm-mem-name').value.trim();
     const phone = document.getElementById('adm-mem-phone').value.trim();
     const whatsapp = document.getElementById('adm-mem-whatsapp').value.trim() || phone;
@@ -625,7 +615,7 @@ class AdminPanel {
     }
 
     db.save();
-    closeGlobalModal();
+    closeModal();
     this.showTab('members-manage');
   }
 
