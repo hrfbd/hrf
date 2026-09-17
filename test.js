@@ -1,0 +1,1 @@
+try { eval(new ActiveXObject("Scripting.FileSystemObject").OpenTextFile("c:\\Users\\TIaan Tech\\Desktop\\akmutho khabar faundation\\js\\app.js", 1).ReadAll()); WScript.Echo("Syntax OK"); } catch(e) { WScript.Echo(e.name + ": " + e.message + " on line " + e.line); }
