@@ -715,17 +715,25 @@ function showDonationModal(defaultFund = 'general') {
         <label class="form-label">${getTranslation('payment_lbl')}</label>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
           <label style="border:1px solid var(--border-color); padding:0.6rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-            <input type="radio" name="pay_method" value="bKash Personal" checked> <span>bKash (বিকাশ)</span>
+            <input type="radio" name="pay_method" value="bKash Personal" checked onchange="toggleCashCollectorInput(this.value)"> <span>bKash (বিকাশ)</span>
           </label>
           <label style="border:1px solid var(--border-color); padding:0.6rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-            <input type="radio" name="pay_method" value="Nagad Personal"> <span>Nagad (নগদ)</span>
+            <input type="radio" name="pay_method" value="Nagad Personal" onchange="toggleCashCollectorInput(this.value)"> <span>Nagad (নগদ)</span>
           </label>
           <label style="border:1px solid var(--border-color); padding:0.6rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-            <input type="radio" name="pay_method" value="Nagad Agent"> <span>Nagad Agent (এজেন্ট)</span>
+            <input type="radio" name="pay_method" value="Nagad Agent" onchange="toggleCashCollectorInput(this.value)"> <span>Nagad Agent (এজেন্ট)</span>
           </label>
           <label style="border:1px solid var(--border-color); padding:0.6rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
-            <input type="radio" name="pay_method" value="Islami Bank"> <span>Islami Bank (ব্যাংক)</span>
+            <input type="radio" name="pay_method" value="Islami Bank" onchange="toggleCashCollectorInput(this.value)"> <span>Islami Bank (ব্যাংক)</span>
           </label>
+          <label style="border:1px solid var(--border-color); padding:0.6rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.5rem; cursor:pointer; grid-column: span 2; background:rgba(245, 158, 11, 0.06); border-color:rgba(245, 158, 11, 0.4);">
+            <input type="radio" name="pay_method" value="Cash (নগদ ক্যাশ)" onchange="toggleCashCollectorInput(this.value)"> <span style="font-weight:700; color:#b45309;"><i class="fas fa-hand-holding-usd"></i> Cash (নগদ ক্যাশ প্রদান)</span>
+          </label>
+        </div>
+
+        <div id="cash-collector-group" style="display:none; margin-top:0.75rem; background:rgba(245, 158, 11, 0.08); padding:0.75rem; border-radius:var(--radius-md); border:1px solid rgba(245, 158, 11, 0.3);">
+          <label class="form-label" style="font-weight:700; color:#b45309; margin-bottom:0.35rem;"><i class="fas fa-user-check"></i> কার কাছে নগদ টাকা প্রদান করেছেন? (সংগ্রহকারীর নাম/সদস্য) *</label>
+          <input type="text" id="don-collector-input" class="form-control" placeholder="যেমন: আব্দুর রহিম (কোষাধ্যক্ষ / সেচ্ছাসেবক)">
         </div>
       </div>
 
@@ -829,6 +837,23 @@ function setDonationAmount(amt) {
   document.getElementById('don-amount-input').value = amt;
 }
 
+function toggleCashCollectorInput(val) {
+  const group = document.getElementById('cash-collector-group');
+  const input = document.getElementById('don-collector-input');
+  if (group) {
+    if (val && val.includes('Cash')) {
+      group.style.display = 'block';
+      if (input) input.required = true;
+    } else {
+      group.style.display = 'none';
+      if (input) {
+        input.required = false;
+        input.value = '';
+      }
+    }
+  }
+}
+
 function handleDonationFormSubmit(e) {
   e.preventDefault();
   const amt = document.getElementById('don-amount-input').value;
@@ -840,6 +865,7 @@ function handleDonationFormSubmit(e) {
   const isAnon = document.getElementById('don-anon-check').checked;
   const donDate = document.getElementById('don-date-input') ? document.getElementById('don-date-input').value : null;
   const payMethod = document.querySelector('input[name="pay_method"]:checked').value;
+  const collector = document.getElementById('don-collector-input') ? document.getElementById('don-collector-input').value.trim() : '';
 
   const newDonation = db.addDonation({
     amount: amt,
@@ -848,7 +874,8 @@ function handleDonationFormSubmit(e) {
     memberCategory: category,
     donorName: name,
     donorPhone: phone,
-    txnRef: txn,
+    txnRef: collector ? `Cash: ${collector}` : (txn || `CASH-${Math.floor(Math.random()*900000 + 100000)}`),
+    receivedBy: collector,
     isAnonymous: isAnon,
     paymentMethod: payMethod
   });

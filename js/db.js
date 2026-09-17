@@ -1322,10 +1322,11 @@ class Database {
       amount: Number(donationData.amount),
       paymentMethod: donationData.paymentMethod || 'bKash',
       txnRef: donationData.txnRef || `TXN-${Math.floor(Math.random()*900000 + 100000)}`,
+      receivedBy: donationData.receivedBy || '',
       status: 'Verified',
       isAnonymous: Boolean(donationData.isAnonymous),
       isInstitutional: Boolean(donationData.isInstitutional),
-      notes: donationData.notes || '',
+      notes: donationData.notes || (donationData.receivedBy ? `নগদ টাকা সংগৃহীত: ${donationData.receivedBy}` : ''),
       privacy: donationData.privacy || { showName: !donationData.isAnonymous },
       date: donationData.date ? (donationData.date.includes(' ') ? donationData.date : donationData.date + ' 12:00') : new Date().toISOString().replace('T', ' ').substring(0, 16)
     };
