@@ -1365,7 +1365,7 @@ class Database {
 
     const newExpense = {
       id: formattedId,
-      date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      date: expenseData.date ? (expenseData.date.includes(' ') ? expenseData.date : expenseData.date + ' 12:00') : new Date().toISOString().replace('T', ' ').substring(0, 16),
       category: expenseData.category,
       fund: expenseData.fund,
       description: expenseData.description,
