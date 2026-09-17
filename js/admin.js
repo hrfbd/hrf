@@ -1370,6 +1370,10 @@ class AdminPanel {
             <input type="number" id="exp-amount" class="form-control" placeholder="1000" required min="1">
           </div>
           <div class="form-group">
+            <label class="form-label"><i class="fas fa-smile-beam" style="color:var(--accent-gold);"></i> উপকারভোগীর সংখ্যা (জন)</label>
+            <input type="number" id="exp-beneficiaries" class="form-control" placeholder="যেমন: ২৫০" min="0" value="0">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
             <label class="form-label">প্রাপক / সরবরাহকারী (Receiver)</label>
             <input type="text" id="exp-receiver" class="form-control" placeholder="সাপ্লায়ারের নাম">
           </div>
@@ -1424,12 +1428,14 @@ class AdminPanel {
   handleExpenseSubmit(e) {
     e.preventDefault();
     const expDate = document.getElementById('exp-date') ? document.getElementById('exp-date').value : null;
+    const benes = document.getElementById('exp-beneficiaries') ? document.getElementById('exp-beneficiaries').value : 0;
 
     const data = {
       category: document.getElementById('exp-cat').value,
       fund: document.getElementById('exp-fund').value,
       date: expDate,
       amount: document.getElementById('exp-amount').value,
+      beneficiariesCount: Number(benes || 0),
       receiver: document.getElementById('exp-receiver').value,
       description: document.getElementById('exp-desc').value,
       paidBy: auth.currentAdmin.name,
