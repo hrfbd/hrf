@@ -22,25 +22,18 @@ class AdminPanel {
           <form id="admin-login-form" onsubmit="adminPanel.handleAdminLogin(event)">
             <div class="form-group" style="margin-bottom:1.2rem;">
               <label class="form-label" style="font-weight:600;"><i class="fas fa-user-shield" style="color:var(--primary-mid);"></i> এডমিন ইউজার অ্যাকাউন্ট (Username)</label>
-              <select id="admin-user-select" class="form-control" style="font-weight:600; padding:0.75rem 1rem;">
-                <option value="superadmin">superadmin — সুপার এডমিন (পূর্ণ নিয়ন্ত্রণ)</option>
-                <option value="finance">finance — অর্থ ও হিসাব এডমিন</option>
-                <option value="donor">donor — দাতা ও সদস্য ম্যানেজার</option>
-                <option value="content">content — কন্টেন্ট ও পোস্ট এডমিন</option>
-                <option value="auditor">auditor — নিরীক্ষক (Auditor)</option>
-              </select>
+              <input type="text" id="admin-user-input" class="form-control" placeholder="ইউজারনেম লিখুন (যেমন: hrfbd)" required style="font-weight:600; padding:0.75rem 1rem;">
             </div>
 
             <div class="form-group" style="margin-bottom:1.5rem;">
               <label class="form-label" style="font-weight:600;"><i class="fas fa-key" style="color:var(--accent-gold);"></i> পাসওয়ার্ড (Password)</label>
               <div style="position:relative;">
-                <input type="password" id="admin-pass-input" class="form-control" value="admin123" placeholder="পাসওয়ার্ড দিন" required style="padding-right:45px; font-weight:600; padding-top:0.75rem; padding-bottom:0.75rem;">
+                <input type="password" id="admin-pass-input" class="form-control" value="" placeholder="পাসওয়ার্ড লিখুন" required style="padding-right:45px; font-weight:600; padding-top:0.75rem; padding-bottom:0.75rem;">
                 <button type="button" onclick="adminPanel.togglePasswordVisibility()" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.1rem; outline:none;" title="পাসওয়ার্ড দেখুন/লুকান">
                   <i id="pass-toggle-icon" class="fas fa-eye"></i>
                 </button>
               </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.6rem;">
-                <small style="color:var(--text-muted);"><i class="fas fa-info-circle"></i> ডিফল্ট পাসওয়ার্ড: <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:700; color:var(--primary-deep);">admin123</code></small>
+              <div style="display:flex; justify-content:flex-end; align-items:center; margin-top:0.6rem;">
                 <a href="javascript:void(0)" onclick="adminPanel.openChangePasswordModal()" style="font-size:0.82rem; color:var(--primary-accent); font-weight:600; text-decoration:none;"><i class="fas fa-key"></i> পাসওয়ার্ড পরিবর্তন?</a>
               </div>
             </div>
@@ -127,8 +120,9 @@ class AdminPanel {
 
   handleAdminLogin(e) {
     e.preventDefault();
-    const user = document.getElementById('admin-user-select').value;
-    const pass = document.getElementById('admin-pass-input').value;
+    const userEl = document.getElementById('admin-user-input') || document.getElementById('admin-user-select');
+    const user = userEl ? userEl.value.trim() : '';
+    const pass = document.getElementById('admin-pass-input').value.trim();
     const res = auth.loginAdmin(user, pass);
 
     if (res.success) {
