@@ -479,6 +479,9 @@ function updateLiveHeaderStats() {
   const elTodayExp = document.getElementById('stat-today-exp');
   if (elTodayExp) elTodayExp.innerText = `৳ ${summary.todayExpense.toLocaleString()}`;
 
+  const elTodayFood = document.getElementById('stat-today-food');
+  if (elTodayFood) elTodayFood.innerText = `${Number(db.data.todayFoodRecipients || 0)} জন`;
+
   const elDonors = document.getElementById('stat-total-donors');
   if (elDonors) elDonors.innerText = summary.totalDonorsCount;
 
@@ -632,6 +635,12 @@ function showDonationModal(defaultFund = 'general') {
   const modalBody = document.getElementById('modal-body-content');
   document.getElementById('modal-title').innerText = getTranslation('btn_donate_now');
 
+  const allMembers = db.getMembers() || [];
+  const membersOptionsHtml = allMembers.map(m => {
+    const label = `${m.name} (${m.id}) - ${m.typeLabelBn || m.type || ''} ${m.phone ? '[' + m.phone + ']' : ''}`;
+    return `<option value="${m.id}">${label}</option>`;
+  }).join('');
+
   modalBody.innerHTML = `
     <form id="donation-submit-form" onsubmit="handleDonationFormSubmit(event)">
       <div class="form-group">
@@ -660,17 +669,35 @@ function showDonationModal(defaultFund = 'general') {
         </select>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">সদস্য / দাতা ক্যাটাগরি</label>
-        <select id="don-category-select" class="form-control">
-          <option value="সাধারণ দাতা (General Donor)">সাধারণ দাতা (General Donor)</option>
-          <option value="মাসিক সাধারণ সদস্য (Monthly Member)">মাসিক সাধারণ সদস্য (Monthly Member)</option>
-          <option value="আজীবন সদস্য (Life Member)">আজীবন সদস্য (Life Member)</option>
-          <option value="স্থায়ী দাতা সদস্য (Permanent Donor)">স্থায়ী দাতা সদস্য (Permanent Donor Member)</option>
-          <option value="উপদেষ্টা সদস্য (Advisor Member)">উপদেষ্টা সদস্য (Advisor Member)</option>
-          <option value="পৃষ্ঠপোষক সদস্য (Patron Member)">পৃষ্ঠপোষক সদস্য (Patron Member)</option>
-          <option value="স্বেচ্ছাসেবক (Volunteer)">স্বেচ্ছাসেবক (Volunteer)</option>
+      <div class="form-group" style="background:rgba(5,150,105,0.06); padding:0.85rem; border-radius:var(--radius-md); border:1px solid rgba(5,150,105,0.2);">
+        <label class="form-label" style="font-weight:700; color:var(--primary-deep); margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem;">
+          <i class="fas fa-id-card-alt" style="color:var(--primary-mid);"></i> নিবন্ধিত সদস্য নির্বাচন করুন (যদি আপনি নিবন্ধিত হন)
+        </label>
+        <select id="don-member-select" class="form-control" onchange="onSelectMemberInDonationModal(this.value)">
+          <option value="">-- নতুন দাতা / অথবা তালিকা থেকে সদস্য নির্বাচন করুন --</option>
+          ${membersOptionsHtml}
         </select>
+        <div id="member-match-status" style="font-size:0.8rem; color:#047857; margin-top:0.35rem; font-weight:600; display:none;"></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-weight:600;"><i class="fas fa-calendar-alt" style="color:var(--primary-mid);"></i> অনুদানের তারিখ (Date)</label>
+          <input type="date" id="don-date-input" class="form-control" required value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" style="font-weight:600;">সদস্য / দাতা ক্যাটাগরি</label>
+          <select id="don-category-select" class="form-control">
+            <option value="সাধারণ দাতা (General Donor)">সাধারণ দাতা (General Donor)</option>
+            <option value="মাসিক সাধারণ সদস্য (Monthly Member)">মাসিক সাধারণ সদস্য (Monthly Member)</option>
+            <option value="৩/৬/১২ মাসের দাতা (3-Month Donor)">৩/৬/১২ মাসের দাতা (3-Month Donor)</option>
+            <option value="আজীবন সদস্য (Life Member)">আজীবন সদস্য (Life Member)</option>
+            <option value="স্থায়ী দাতা সদস্য (Permanent Donor)">স্থায়ী দাতা সদস্য (Permanent Donor Member)</option>
+            <option value="উপদেষ্টা সদস্য (Advisor Member)">উপদেষ্টা সদস্য (Advisor Member)</option>
+            <option value="পৃষ্ঠপোষক সদস্য (Patron Member)">পৃষ্ঠপোষক সদস্য (Patron Member)</option>
+            <option value="স্বেচ্ছাসেবক (Volunteer)">স্বেচ্ছাসেবক (Volunteer)</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-group" style="background:rgba(15,90,62,0.05); padding:1rem; border-radius:var(--radius-md); border:1px solid rgba(15,90,62,0.15); margin-bottom:1.25rem;">
@@ -710,7 +737,7 @@ function showDonationModal(defaultFund = 'general') {
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
         <div class="form-group">
           <label class="form-label">${getTranslation('donor_phone_lbl')}</label>
-          <input type="tel" id="don-phone-input" class="form-control" placeholder="017XXXXXXXX" required value="${auth.currentUser ? auth.currentUser.phone : ''}">
+          <input type="tel" id="don-phone-input" class="form-control" placeholder="017XXXXXXXX" required value="${auth.currentUser ? auth.currentUser.phone : ''}" oninput="onPhoneInputMatchMember(this.value)">
         </div>
         <div class="form-group">
           <label class="form-label">ট্রানজেকশন রেফ / Txn ID</label>
@@ -734,6 +761,70 @@ function showDonationModal(defaultFund = 'general') {
   document.getElementById('global-modal').classList.add('active');
 }
 
+function onSelectMemberInDonationModal(memberId) {
+  const statusDiv = document.getElementById('member-match-status');
+  if (!memberId) {
+    if (statusDiv) statusDiv.style.display = 'none';
+    return;
+  }
+  const allMembers = db.getMembers() || [];
+  const member = allMembers.find(m => m.id === memberId);
+  if (!member) return;
+
+  const nameInput = document.getElementById('don-name-input');
+  const phoneInput = document.getElementById('don-phone-input');
+  const catSelect = document.getElementById('don-category-select');
+
+  if (nameInput) nameInput.value = member.name;
+  if (phoneInput && member.phone) phoneInput.value = member.phone;
+
+  if (catSelect) {
+    if (member.type === 'Monthly' || (member.typeLabelBn && member.typeLabelBn.includes('মাসিক'))) {
+      catSelect.value = 'মাসিক সাধারণ সদস্য (Monthly Member)';
+    } else if (member.type === '3-Month' || (member.typeLabelBn && member.typeLabelBn.includes('৩/৬/১২'))) {
+      catSelect.value = '৩/৬/১২ মাসের দাতা (3-Month Donor)';
+    } else if (member.type === 'Volunteer') {
+      catSelect.value = 'স্বেচ্ছাসেবক (Volunteer)';
+    }
+  }
+
+  if (statusDiv) {
+    statusDiv.style.display = 'block';
+    statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> সদস্য নির্বাচন করা হয়েছে: <strong>${member.name}</strong> (${member.id})`;
+  }
+}
+
+function onPhoneInputMatchMember(phoneVal) {
+  const clean = db.cleanPhone(phoneVal);
+  const statusDiv = document.getElementById('member-match-status');
+  if (clean.length >= 8) {
+    const allMembers = db.getMembers() || [];
+    const found = allMembers.find(m => db.cleanPhone(m.phone) === clean);
+    if (found) {
+      const nameInput = document.getElementById('don-name-input');
+      const memberSelect = document.getElementById('don-member-select');
+      const catSelect = document.getElementById('don-category-select');
+      if (nameInput && (!nameInput.value || nameInput.value !== found.name)) {
+        nameInput.value = found.name;
+      }
+      if (memberSelect) {
+        memberSelect.value = found.id;
+      }
+      if (catSelect) {
+        if (found.type === 'Monthly' || (found.typeLabelBn && found.typeLabelBn.includes('মাসিক'))) {
+          catSelect.value = 'মাসিক সাধারণ সদস্য (Monthly Member)';
+        } else if (found.type === '3-Month' || (found.typeLabelBn && found.typeLabelBn.includes('৩/৬/১২'))) {
+          catSelect.value = '৩/৬/১২ মাসের দাতা (3-Month Donor)';
+        }
+      }
+      if (statusDiv) {
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> নিবন্ধিত সদস্য সনাক্ত করা হয়েছে: <strong>${found.name}</strong> (${found.id})`;
+      }
+    }
+  }
+}
+
 function setDonationAmount(amt) {
   document.getElementById('don-amount-input').value = amt;
 }
@@ -747,11 +838,13 @@ function handleDonationFormSubmit(e) {
   const phone = document.getElementById('don-phone-input').value;
   const txn = document.getElementById('don-txn-input').value;
   const isAnon = document.getElementById('don-anon-check').checked;
+  const donDate = document.getElementById('don-date-input') ? document.getElementById('don-date-input').value : null;
   const payMethod = document.querySelector('input[name="pay_method"]:checked').value;
 
   const newDonation = db.addDonation({
     amount: amt,
     fund: fund,
+    date: donDate,
     memberCategory: category,
     donorName: name,
     donorPhone: phone,
