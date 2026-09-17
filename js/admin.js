@@ -532,9 +532,26 @@ class AdminPanel {
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom:0.85rem;">
-          <label class="form-label" style="font-weight:600; color:var(--text-dark);">ছবি লিংক (PostIMG / Web URL / ছবির লিংক)</label>
-          <input type="text" id="adm-mem-image" class="form-control" placeholder="https://i.postimg.cc/..." value="${m ? (m.profileImage || '') : ''}">
+        <div class="form-group" style="margin-bottom:0.85rem; background:rgba(5,150,105,0.04); padding:0.85rem; border-radius:var(--radius-md); border:1px dashed rgba(5,150,105,0.3);">
+          <label class="form-label" style="font-weight:600; color:var(--primary-deep); margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem;">
+            <i class="fas fa-camera" style="color:var(--primary-mid);"></i> সদস্যের ছবি (গ্যালারি/ক্যামেরা থেকে ফাইল অথবা অনলাইন লিংক)
+          </label>
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">
+            <div>
+              <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:3px;">📷 গ্যালারি / ফাইল থেকে বেছে নিন:</label>
+              <input type="file" id="adm-mem-file" class="form-control" accept="image/*" style="font-size:0.8rem; padding:0.35rem;" onchange="adminPanel.handleMemberPhotoUpload(event)">
+            </div>
+            <div>
+              <label style="font-size:0.78rem; color:var(--text-muted); display:block; margin-bottom:3px;">🔗 অথবা ছবির ওয়েব লিংক (PostIMG/URL):</label>
+              <input type="text" id="adm-mem-image" class="form-control" placeholder="https://i.postimg.cc/..." value="${m ? (m.profileImage || '') : ''}" oninput="document.getElementById('adm-mem-preview').src=this.value; document.getElementById('adm-mem-preview').style.display=this.value?'block':'none';">
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-top:0.35rem;">
+            <img id="adm-mem-preview" src="${m && m.profileImage ? m.profileImage : ''}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--primary-mid); display:${m && m.profileImage ? 'block' : 'none'};">
+            <span style="font-size:0.78rem; color:var(--text-muted);">ছবি সিলেক্ট বা লিংক দিলে এখানে লাইভ প্রিভিউ দেখতে পাবেন।</span>
+          </div>
         </div>
 
         <div class="form-group" style="margin-bottom:1.25rem;">
@@ -554,6 +571,27 @@ class AdminPanel {
     `;
 
     openModal(title, formHtml);
+  }
+
+  handleMemberPhotoUpload(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('ছবি সাইজ সর্বোচ্চ ৫ মেগাবাইট হতে হবে!', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const dataUrl = evt.target.result;
+      const urlInput = document.getElementById('adm-mem-image');
+      if (urlInput) urlInput.value = dataUrl;
+      const previewImg = document.getElementById('adm-mem-preview');
+      if (previewImg) {
+        previewImg.src = dataUrl;
+        previewImg.style.display = 'block';
+      }
+    };
+    reader.readAsDataURL(file);
   }
 
   handleSaveMemberSubmit(e, memberId) {
