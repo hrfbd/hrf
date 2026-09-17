@@ -1327,7 +1327,7 @@ class Database {
       isInstitutional: Boolean(donationData.isInstitutional),
       notes: donationData.notes || '',
       privacy: donationData.privacy || { showName: !donationData.isAnonymous },
-      date: new Date().toISOString().replace('T', ' ').substring(0, 16)
+      date: donationData.date ? (donationData.date.includes(' ') ? donationData.date : donationData.date + ' 12:00') : new Date().toISOString().replace('T', ' ').substring(0, 16)
     };
 
     this.data.donations.unshift(newDonation);
