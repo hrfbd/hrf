@@ -955,6 +955,7 @@ const defaultDatabase = {
 
   beneficiariesCount: 0,
   volunteersCount: 0,
+  todayFoodRecipients: 0,
   userCredentials: {
     'hrfbd': 'HRFBD2026',
     'superadmin': 'HRFBD2026',
