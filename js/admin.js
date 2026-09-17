@@ -374,10 +374,15 @@ class AdminPanel {
   // 1. MEMBER APPROVAL, EDIT & DELETE MANAGER
   // ==========================================
   renderMembersManager(container, filterStatus = 'all') {
-    let members = db.data.members;
-    if (filterStatus !== 'all') {
-      members = members.filter(m => m.status.toLowerCase() === filterStatus.toLowerCase());
-    }
+    const isApproved = m => m.status === 'Approved' || m.status === 'Verified' || m.status === 'অনুমোদিত';
+    const isPending = m => m.status === 'Pending' || m.status === 'অপেক্ষমাণ';
+    const isRejected = m => m.status === 'Rejected' || m.status === 'বাতিল';
+
+    const allList = db.data.members || [];
+    let members = allList;
+    if (filterStatus === 'pending') members = allList.filter(isPending);
+    else if (filterStatus === 'approved') members = allList.filter(isApproved);
+    else if (filterStatus === 'rejected') members = allList.filter(isRejected);
 
     container.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
@@ -387,15 +392,15 @@ class AdminPanel {
         </div>
         <div style="display:flex; gap:0.5rem;">
           <button class="btn btn-sm" style="background:#dc2626; color:#fff; border:none;" onclick="adminPanel.confirmClearAllMembers()"><i class="fas fa-trash-alt"></i> সকল সদস্য ডিলিট করুন</button>
-          <button class="btn btn-primary btn-sm" onclick="adminPanel.promptAddMember()"><i class="fas fa-user-plus"></i> নতুন সদস্য যোগ করুন</button>
+          <button class="btn btn-primary btn-sm" onclick="adminPanel.showAddMemberModal()"><i class="fas fa-user-plus"></i> নতুন সদস্য যোগ করুন</button>
         </div>
       </div>
 
-      <div style="display:flex; gap:0.5rem; margin-bottom:1.25rem;">
-        <button class="btn btn-sm ${filterStatus === 'all' ? 'btn-primary' : 'btn-secondary'}" onclick="adminPanel.renderMembersManager(document.getElementById('admin-tab-content'), 'all')">সকল (${db.data.members.length})</button>
-        <button class="btn btn-sm ${filterStatus === 'pending' ? 'btn-primary' : 'btn-secondary'}" onclick="adminPanel.renderMembersManager(document.getElementById('admin-tab-content'), 'pending')">অপেক্ষমাণ (${db.data.members.filter(m => m.status==='Pending').length})</button>
-        <button class="btn btn-sm ${filterStatus === 'approved' ? 'btn-primary' : 'btn-secondary'}" onclick="adminPanel.renderMembersManager(document.getElementById('admin-tab-content'), 'approved')">অনুমোদিত (${db.data.members.filter(m => m.status==='Approved').length})</button>
-        <button class="btn btn-sm ${filterStatus === 'rejected' ? 'btn-primary' : 'btn-secondary'}" onclick="adminPanel.renderMembersManager(document.getElementById('admin-tab-content'), 'rejected')">বাতিলকৃত (${db.data.members.filter(m => m.status==='Rejected').length})</button>
+      <div style="display:flex; gap:0.5rem; margin-bottom:1.25rem; flex-wrap:wrap;">
+        <button class="btn btn-sm ${filterStatus === 'all' ? 'btn-primary' : 'btn-secondary'}" onclick="adminPanel.renderMembersManager(document.getElementById('admin-tab-content'), 'all')">সকল (${allList.length})</button>
+        <button class="btn btn-sm ${filterStatus === 'pending' ? 'btn-primary' : 'btn-secondary'}" onclick="adminPanel.renderMembersManager(document.getElementById('admin-tab-content'), 'pending')">অপেক্ষমাণ (${allList.filter(isPending).length})</button>
+        <button class="btn btn-sm ${filterStatus === 'approved' ? 'btn-primary' : 'btn-secondary'}" onclick="adminPanel.renderMembersManager(document.getElementById('admin-tab-content'), 'approved')">অনুমোদিত (${allList.filter(isApproved).length})</button>
+        <button class="btn btn-sm ${filterStatus === 'rejected' ? 'btn-primary' : 'btn-secondary'}" onclick="adminPanel.renderMembersManager(document.getElementById('admin-tab-content'), 'rejected')">বাতিলকৃত (${allList.filter(isRejected).length})</button>
       </div>
 
       <div class="table-responsive">
@@ -416,8 +421,13 @@ class AdminPanel {
               <tr>
                 <td><strong>${m.id}</strong></td>
                 <td>
-                  <strong>${m.name}</strong><br>
-                  <small style="color:var(--text-muted);">${m.occupation || ''}</small>
+                  <div style="display:flex; align-items:center; gap:0.5rem;">
+                    ${m.profileImage ? `<img src="${m.profileImage}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">` : ''}
+                    <div>
+                      <strong>${m.name}</strong> ${m.isProbashi ? '<span class="badge" style="background:#0284c7; color:#fff; font-size:0.65rem;">প্রবাসী</span>' : ''}<br>
+                      <small style="color:var(--text-muted);">${m.occupation || ''}</small>
+                    </div>
+                  </div>
                 </td>
                 <td>
                   ${m.phone}<br>
@@ -426,23 +436,23 @@ class AdminPanel {
                 <td><span class="badge badge-pending">${m.typeLabelBn || m.type}</span></td>
                 <td><strong style="color:var(--primary-mid);">৳ ${Number(m.amount).toLocaleString()}</strong></td>
                 <td>
-                  <span class="badge ${m.status === 'Approved' ? 'badge-verified' : m.status === 'Pending' ? 'badge-pending' : 'badge-rejected'}">
-                    ${m.status === 'Approved' ? 'অনুমোদিত' : m.status === 'Pending' ? 'অপেক্ষমাণ' : 'বাতিল'}
+                  <span class="badge ${isApproved(m) ? 'badge-verified' : isPending(m) ? 'badge-pending' : 'badge-rejected'}">
+                    ${isApproved(m) ? 'অনুমোদিত' : isPending(m) ? 'অপেক্ষমাণ' : 'বাতিল'}
                   </span>
                 </td>
                 <td>
                   <div style="display:flex; gap:0.35rem; flex-wrap:nowrap;">
-                    ${m.status !== 'Approved' ? `
+                    ${!isApproved(m) ? `
                       <button class="btn btn-sm btn-primary" style="padding:0.25rem 0.5rem; font-size:0.75rem; background:var(--primary-mid);" onclick="adminPanel.changeMemberStatus('${m.id}', 'Approved')" title="অনুমোদন করুন">
                         <i class="fas fa-check"></i>
                       </button>
                     ` : ''}
-                    ${m.status !== 'Rejected' ? `
+                    ${!isRejected(m) ? `
                       <button class="btn btn-sm btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.75rem; background:var(--accent-red); color:#fff; border:none;" onclick="adminPanel.changeMemberStatus('${m.id}', 'Rejected')" title="বাতিল করুন">
                         <i class="fas fa-times"></i>
                       </button>
                     ` : ''}
-                    <button class="btn btn-sm btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.75rem;" onclick="adminPanel.promptEditMember('${m.id}')" title="সম্পাদনা">
+                    <button class="btn btn-sm btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.75rem;" onclick="adminPanel.showAddMemberModal('${m.id}')" title="সম্পাদনা">
                       <i class="fas fa-edit"></i>
                     </button>
                     <button class="btn btn-sm btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.75rem; background:#dc2626; color:#fff; border:none;" onclick="adminPanel.confirmDeleteMember('${m.id}')" title="ডিলিট করুন">
@@ -465,27 +475,167 @@ class AdminPanel {
     }
   }
 
-  promptEditMember(memberId) {
-    const m = db.data.members.find(x => x.id === memberId);
-    if (!m) return;
+  showAddMemberModal(memberId = null) {
+    const isEdit = Boolean(memberId);
+    const m = isEdit ? db.data.members.find(x => x.id === memberId) : null;
 
-    const newName = prompt('সদস্যের সঠিক নাম লিখুন:', m.name);
-    if (!newName) return;
+    const modalHtml = `
+      <div class="modal-content" style="max-width:560px; max-height:90vh; overflow-y:auto; padding:1.75rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem;">
+          <h3 style="font-size:1.2rem; font-weight:700; color:var(--primary-deep); margin:0;">
+            <i class="fas ${isEdit ? 'fa-user-edit' : 'fa-user-plus'}" style="color:var(--primary-mid);"></i>
+            ${isEdit ? 'সদস্যের তথ্য সম্পাদনা করুন' : 'নতুন সদস্যের পূর্ণ তথ্য সংযোজন'}
+          </h3>
+          <button type="button" onclick="closeGlobalModal()" style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-muted);">&times;</button>
+        </div>
 
-    const newPhone = prompt('মোবাইল নম্বর:', m.phone) || m.phone;
-    const newDistrict = prompt('জেলা/ঠিকানা:', m.district) || m.district;
-    const newOccupation = prompt('পেশা ও প্রতিষ্ঠানের/ব্যবসার নাম (যেমন: স্বত্বাধিকারী: মেসার্স শাহজামাল এন্টারপ্রাইজ):', m.occupation || '') || m.occupation;
-    const newAmount = prompt('প্রতিশ্রুত টাকার পরিমাণ:', m.amount) || m.amount;
+        <form onsubmit="adminPanel.handleSaveMemberSubmit(event, '${memberId || ''}')">
+          <div class="form-group" style="margin-bottom:0.85rem;">
+            <label class="form-label" style="font-weight:600;">সদস্যের পূর্ণ নাম <span style="color:red;">*</span></label>
+            <input type="text" id="adm-mem-name" class="form-control" required placeholder="যেমন: মো: নাজমুল ইসলাম" value="${m ? m.name : ''}">
+          </div>
 
-    m.name = newName;
-    m.phone = newPhone;
-    m.district = newDistrict;
-    m.occupation = newOccupation;
-    m.amount = Number(newAmount);
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
+            <div class="form-group">
+              <label class="form-label" style="font-weight:600;">মোবাইল নম্বর <span style="color:red;">*</span></label>
+              <input type="tel" id="adm-mem-phone" class="form-control" required placeholder="017XXXXXXXX" value="${m ? m.phone : ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-weight:600;">হোয়াটসঅ্যাপ নম্বর</label>
+              <input type="tel" id="adm-mem-whatsapp" class="form-control" placeholder="017XXXXXXXX" value="${m ? (m.whatsapp || m.phone) : ''}">
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0.85rem;">
+            <label class="form-label" style="font-weight:600;">পেশা, পদবী ও ব্যবসা/প্রতিষ্ঠানের নাম</label>
+            <input type="text" id="adm-mem-occupation" class="form-control" placeholder="যেমন: রেমিটেন্স যোদ্ধা, কুয়েত প্রবাসী / স্বত্বাধিকারী: মেসার্স রিসান ট্রেড" value="${m ? (m.occupation || '') : ''}">
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
+            <div class="form-group">
+              <label class="form-label" style="font-weight:600;">জেলা / পূর্ণ ঠিকানা</label>
+              <input type="text" id="adm-mem-district" class="form-control" placeholder="যেমন: রৌমারী, কুড়িগ্রাম" value="${m ? (m.district || '') : ''}">
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-weight:600;">সদস্য ক্যাটাগরি</label>
+              <select id="adm-mem-type" class="form-control">
+                <option value="Monthly" ${m && m.type === 'Monthly' ? 'selected' : ''}>মাসিক দায়িত্বশীল সদস্য (Monthly Member)</option>
+                <option value="3-Month" ${m && m.type === '3-Month' ? 'selected' : ''}>৩/৬/১২ মাসের দাতা (3-Month Donor)</option>
+                <option value="Life" ${m && m.type === 'Life' ? 'selected' : ''}>আজীবন সদস্য (Life Member)</option>
+                <option value="Volunteer" ${m && m.type === 'Volunteer' ? 'selected' : ''}>স্বেচ্ছাসেবক (Volunteer)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.85rem;">
+            <div class="form-group">
+              <label class="form-label" style="font-weight:600;">অনুদান / প্রতিশ্রুত টাকা (৳)</label>
+              <input type="number" id="adm-mem-amount" class="form-control" required value="${m ? m.amount : 1000}" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-weight:600;">অনুমোদন স্ট্যাটাস</label>
+              <select id="adm-mem-status" class="form-control">
+                <option value="Approved" ${!m || m.status === 'Approved' || m.status === 'Verified' ? 'selected' : ''}>অনুমোদিত (Approved)</option>
+                <option value="Pending" ${m && m.status === 'Pending' ? 'selected' : ''}>অপেক্ষমাণ (Pending)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0.85rem;">
+            <label class="form-label" style="font-weight:600;">ছবি লিংক (PostIMG / Web URL / ছবির লিংক)</label>
+            <input type="text" id="adm-mem-image" class="form-control" placeholder="https://i.postimg.cc/..." value="${m ? (m.profileImage || '') : ''}">
+          </div>
+
+          <div class="form-group" style="margin-bottom:1.25rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:600; color:var(--primary-deep);">
+              <input type="checkbox" id="adm-mem-probashi" ${m && m.isProbashi ? 'checked' : ''}>
+              <span>প্রবাসী / রেমিটেন্স যোদ্ধা সদস্য (Probashi Member)</span>
+            </label>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeGlobalModal()">বাতিল</button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> ${isEdit ? 'তথ্য আপডেট করুন' : 'সদস্য তথ্য জমা দিন'}
+            </button>
+          </div>
+        </form>
+      </div>
+    `;
+
+    document.getElementById('global-modal').innerHTML = modalHtml;
+    document.getElementById('global-modal').classList.add('active');
+  }
+
+  handleSaveMemberSubmit(e, memberId) {
+    e.preventDefault();
+    const name = document.getElementById('adm-mem-name').value.trim();
+    const phone = document.getElementById('adm-mem-phone').value.trim();
+    const whatsapp = document.getElementById('adm-mem-whatsapp').value.trim() || phone;
+    const occupation = document.getElementById('adm-mem-occupation').value.trim();
+    const district = document.getElementById('adm-mem-district').value.trim();
+    const type = document.getElementById('adm-mem-type').value;
+    const amount = Number(document.getElementById('adm-mem-amount').value) || 0;
+    const status = document.getElementById('adm-mem-status').value;
+    const profileImage = document.getElementById('adm-mem-image').value.trim() || null;
+    const isProbashi = document.getElementById('adm-mem-probashi').checked;
+
+    let typeLabelBn = 'মাসিক দায়িত্বশীল সদস্য';
+    if (type === '3-Month') typeLabelBn = '৩/৬/১২ মাসের দাতা';
+    else if (type === 'Life') typeLabelBn = 'আজীবন সদস্য';
+    else if (type === 'Volunteer') typeLabelBn = 'স্বেচ্ছাসেবক';
+
+    if (memberId) {
+      const m = db.data.members.find(x => x.id === memberId);
+      if (m) {
+        m.name = name;
+        m.phone = phone;
+        m.whatsapp = whatsapp;
+        m.occupation = occupation;
+        m.district = district;
+        m.type = type;
+        m.typeLabelBn = typeLabelBn;
+        m.amount = amount;
+        m.status = status;
+        m.profileImage = profileImage;
+        m.isProbashi = isProbashi;
+      }
+      showToast('সদস্যের পূর্ণ তথ্য সফলভাবে আপডেট করা হয়েছে!', 'success');
+    } else {
+      const count = db.data.members.length + 1;
+      const newMem = {
+        id: `HRF-${String(count).padStart(3, '0')}`,
+        name: name,
+        phone: phone,
+        whatsapp: whatsapp,
+        district: district,
+        occupation: occupation,
+        type: type,
+        typeLabelBn: typeLabelBn,
+        frequency: type === '3-Month' ? '3-Month' : 'Monthly',
+        amount: amount,
+        joiningDate: new Date().toISOString().split('T')[0],
+        status: status,
+        avatarBg: '#059669',
+        profileImage: profileImage,
+        isAnonymous: false,
+        isProbashi: isProbashi
+      };
+      db.data.members.unshift(newMem);
+      showToast('নতুন সদস্যের পূর্ণ তথ্য সফলভাবে জমা ও নিবন্ধিত হয়েছে!', 'success');
+    }
 
     db.save();
-    showToast('সদস্যের তথ্য আপডেট করা হয়েছে!', 'success');
+    closeGlobalModal();
     this.showTab('members-manage');
+  }
+
+  promptAddMember() {
+    this.showAddMemberModal();
+  }
+
+  promptEditMember(memberId) {
+    this.showAddMemberModal(memberId);
   }
 
   confirmDeleteMember(memberId) {
@@ -503,36 +653,6 @@ class AdminPanel {
       showToast('সকল সদস্যের তথ্য সফলভাবে বাতিল ও ডিলিট করা হয়েছে।', 'success');
       this.showTab('members-manage');
     }
-  }
-
-  promptAddMember() {
-    const name = prompt('নতুন সদস্যের নাম লিখুন:');
-    if (!name) return;
-    const phone = prompt('মোবাইল নম্বর (WhatsApp সহ):', '01700000000') || '';
-    const district = prompt('জেলা/ঠিকানা:', 'কুড়িগ্রাম') || 'কুড়িগ্রাম';
-    const occupation = prompt('পেশা ও প্রতিষ্ঠানের/ব্যবসার নাম (যেমন: স্বত্বাধিকারী: মেসার্স শাহজামাল এন্টারপ্রাইজ):', 'স্বত্বাধিকারী: মেসার্স শাহজামাল এন্টারপ্রাইজ') || 'ব্যবসা';
-    const amount = prompt('মাসিক/বার্ষিক অনুদান পরিমাণ (টাকা):', '1000') || 1000;
-
-    const count = db.data.members.length + 1;
-    const newMem = {
-      id: `HRF-${String(count).padStart(3, '0')}`,
-      name: name,
-      phone: phone,
-      district: district,
-      occupation: occupation,
-      type: 'Monthly',
-      typeLabelBn: 'মাসিক দায়িত্বশীল সদস্য',
-      frequency: 'Monthly',
-      amount: Number(amount),
-      joiningDate: new Date().toISOString().split('T')[0],
-      status: 'Approved',
-      avatarBg: '#0F5A3E'
-    };
-
-    db.data.members.unshift(newMem);
-    db.save();
-    showToast('নতুন সদস্য সফলভাবে রেজিস্টার্ড ও অনুমোদিত হয়েছে!', 'success');
-    this.showTab('members-manage');
   }
 
   // ==========================================
