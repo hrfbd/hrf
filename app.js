@@ -524,8 +524,8 @@ function renderMemberMarqueeTrack() {
   const marqueeTrack = document.getElementById('member-marquee-track');
   if (!marqueeTrack) return;
 
-  const members = db.getMembers() || [];
-  if (members.length === 0) return;
+  const members = (db.data && db.data.members) ? db.data.members : (db.getMembers ? db.getMembers() : []);
+  if (!members || members.length === 0) return;
 
   // Duplicate list to create seamless infinite marquee scroll
   const displayList = [...members, ...members];
@@ -536,7 +536,7 @@ function renderMemberMarqueeTrack() {
       : `<div style="width:46px; height:46px; border-radius:50%; background:${m.avatarBg || 'var(--primary-mid)'}; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1rem; flex-shrink:0;">${(m.name || 'M').charAt(0)}</div>`;
 
     return `
-      <div class="member-marquee-card" onclick="showMemberProfileModal('${m.id}')" style="display:inline-flex; align-items:center; gap:0.75rem; background:#fff; padding:0.65rem 1.25rem; border-radius:50px; box-shadow:0 3px 10px rgba(0,0,0,0.06); border:1px solid var(--border-color); cursor:pointer; flex-shrink:0;">
+      <div class="member-marquee-card" onclick="showMemberProfile('${m.id}')" style="display:inline-flex; align-items:center; gap:0.75rem; background:#fff; padding:0.65rem 1.25rem; border-radius:50px; box-shadow:0 3px 10px rgba(0,0,0,0.06); border:1px solid var(--border-color); cursor:pointer; flex-shrink:0;">
         ${avatarHtml}
         <div style="text-align:left;">
           <h4 style="font-size:0.92rem; font-weight:700; color:var(--primary-deep); margin:0; line-height:1.2;">${m.name}</h4>

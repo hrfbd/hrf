@@ -1088,6 +1088,10 @@ class Database {
     return parsed;
   }
 
+  getMembers() {
+    return (this.data && this.data.members) ? this.data.members : [];
+  }
+
   clearAllMembers() {
     this.data.members = [];
     this.save();
