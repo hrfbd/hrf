@@ -1333,13 +1333,13 @@ class AdminPanel {
             <img id="exp-cash-memo-preview" src="" style="max-height: 150px; margin-top: 10px; display: none; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
           </div>
           <div class="form-group">
-            <label class="form-label">ব্যয়ের ক্যাটাগরি / খাত</label>
-            <input type="text" id="exp-cat" class="form-control" placeholder="যেমন: খাদ্য বিতরণ / স্টেশনারি" required>
+            <label class="form-label"><i class="fas fa-calendar-alt" style="color:var(--primary-mid);"></i> ব্যয়ের তারিখ (Date)</label>
+            <input type="date" id="exp-date" class="form-control" required value="${new Date().toISOString().split('T')[0]}">
           </div>
           <div class="form-group">
-            <label class="form-label">ফান্ড নির্বাচন</label>
-            <select id="exp-fund" class="form-control">
-              <option value="food">খাদ্য ফান্ড (Food Fund)</option>
+            <label class="form-label"><i class="fas fa-layer-group" style="color:var(--accent-gold);"></i> ফান্ড নির্বাচন (Fund)</label>
+            <select id="exp-fund" class="form-control" onchange="adminPanel.onFundSelectAutoCategory(this.value)">
+              <option value="food" selected>খাদ্য ফান্ড (Food Fund)</option>
               <option value="housing">আশ্রয় ও গৃহ নির্মাণ ফান্ড (Shelter & Housing Fund)</option>
               <option value="education">শিক্ষা সহায়তা ফান্ড</option>
               <option value="medical">চিকিৎসা সহায়তা ফান্ড</option>
@@ -1349,6 +1349,21 @@ class AdminPanel {
               <option value="religious">ধর্মীয় ও সামাজিক উন্নয়ন ফান্ড</option>
               <option value="general">সাধারণ মানবিক ফান্ড</option>
             </select>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label"><i class="fas fa-list-alt" style="color:var(--primary-accent);"></i> ব্যয়ের ক্যাটাগরি / খাত (অটো-সিলেক্টড / পরিবর্তনযোগ্য)</label>
+            <input type="text" id="exp-cat" class="form-control" list="exp-category-list" value="খাদ্য বিতরণ ও খাদ্য সামগ্রী ক্রয়" placeholder="যেমন: খাদ্য বিতরণ / স্টেশনারি" required>
+            <datalist id="exp-category-list">
+              <option value="খাদ্য বিতরণ ও খাদ্য সামগ্রী ক্রয়">
+              <option value="আশ্রয় ও গৃহ নির্মাণ সামগ্রী ক্রয়">
+              <option value="শিক্ষা উপকরণ ও ছাত্রবৃত্তি প্রদান">
+              <option value="চিকিৎসা ও ঔষধ সহায়তা প্রদান">
+              <option value="আত্মকর্মসংস্থান ও আয়বর্ধক সরঞ্জাম">
+              <option value="প্রবীণ সেবা ও বাসস্থান সহায়তা">
+              <option value="বৃদ্ধাশ্রম প্রকল্প ও জমি উন্নয়ন">
+              <option value="ধর্মীয় ও সামাজিক উন্নয়ন প্রকল্প">
+              <option value="সাধারণ প্রশাসনিক ও মানবিক খাত">
+            </datalist>
           </div>
           <div class="form-group">
             <label class="form-label">টাকার পরিমাণ (BDT)</label>
@@ -1370,6 +1385,27 @@ class AdminPanel {
     `;
   }
 
+  onFundSelectAutoCategory(fundVal) {
+    const catInput = document.getElementById('exp-cat');
+    if (!catInput) return;
+
+    const fundCategoryMap = {
+      'food': 'খাদ্য বিতরণ ও খাদ্য সামগ্রী ক্রয়',
+      'housing': 'আশ্রয় ও গৃহ নির্মাণ সামগ্রী ক্রয়',
+      'education': 'শিক্ষা উপকরণ ও ছাত্রবৃত্তি প্রদান',
+      'medical': 'চিকিৎসা ও ঔষধ সহায়তা প্রদান',
+      'self_reliance': 'আত্মকর্মসংস্থান ও আয়বর্ধক সরঞ্জাম',
+      'elderly': 'প্রবীণ সেবা ও বাসস্থান সহায়তা',
+      'old_age_home': 'বৃদ্ধাশ্রম প্রকল্প ও জমি উন্নয়ন',
+      'religious': 'ধর্মীয় ও সামাজিক উন্নয়ন প্রকল্প',
+      'general': 'সাধারণ প্রশাসনিক ও মানবিক খাত'
+    };
+
+    if (fundCategoryMap[fundVal]) {
+      catInput.value = fundCategoryMap[fundVal];
+    }
+  }
+
   handleCashMemoUpload(input) {
     if (input.files && input.files[0]) {
       const reader = new FileReader();
@@ -1387,9 +1423,12 @@ class AdminPanel {
 
   handleExpenseSubmit(e) {
     e.preventDefault();
+    const expDate = document.getElementById('exp-date') ? document.getElementById('exp-date').value : null;
+
     const data = {
       category: document.getElementById('exp-cat').value,
       fund: document.getElementById('exp-fund').value,
+      date: expDate,
       amount: document.getElementById('exp-amount').value,
       receiver: document.getElementById('exp-receiver').value,
       description: document.getElementById('exp-desc').value,

@@ -2,7 +2,7 @@
    Ek Mutho Khabar Manobik Foundation - Local Database & Dynamic Balance Engine
    ========================================================================== */
 
-const DB_KEY = 'emkf_database_v9';
+const DB_KEY = 'emkf_database_v11';
 
 // Initial Seed Data
 const defaultDatabase = {
@@ -1072,7 +1072,7 @@ class Database {
     if (!parsed.funds || !parsed.funds.some(f => f.id === 'housing')) {
       parsed.funds = JSON.parse(JSON.stringify(defaultDatabase.funds));
     }
-    if (!parsed.members || !Array.isArray(parsed.members) || parsed.members.length === 0) {
+    if (!parsed.members || !Array.isArray(parsed.members) || parsed.members.length === 0 || parsed.members.length > defaultDatabase.members.length) {
       parsed.members = JSON.parse(JSON.stringify(defaultDatabase.members));
     } else {
       defaultDatabase.members.forEach(dm => {
@@ -1086,6 +1086,10 @@ class Database {
     }
     localStorage.setItem(DB_KEY, JSON.stringify(parsed));
     return parsed;
+  }
+
+  getMembers() {
+    return (this.data && this.data.members) ? this.data.members : [];
   }
 
   clearAllMembers() {
@@ -1282,14 +1286,7 @@ class Database {
       };
     });
 
-    const donorUniqueSet = new Set();
-    (this.data.members || []).forEach(m => {
-      if (m.id || m.phone || m.name) donorUniqueSet.add(m.id || m.phone || m.name);
-    });
-    (this.data.donations || []).forEach(d => {
-      if (d.donorPhone || d.donorName || d.id) donorUniqueSet.add(d.donorPhone || d.donorName || d.id);
-    });
-    const totalDonorsCount = Math.max(donorUniqueSet.size, (this.data.members ? this.data.members.length : 0));
+    const totalDonorsCount = (this.data.members || []).length;
 
     return {
       openingBalance: this.data.openingBalance,
@@ -1368,7 +1365,7 @@ class Database {
 
     const newExpense = {
       id: formattedId,
-      date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      date: expenseData.date ? (expenseData.date.includes(' ') ? expenseData.date : expenseData.date + ' 12:00') : new Date().toISOString().replace('T', ' ').substring(0, 16),
       category: expenseData.category,
       fund: expenseData.fund,
       description: expenseData.description,
