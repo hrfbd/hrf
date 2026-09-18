@@ -207,8 +207,67 @@ function renderPublicLeadership() {
   const advisorsGrid = document.getElementById('public-advisors-grid');
   const committeeGrid = document.getElementById('public-committee-grid');
 
-  if (foundersGrid && typeof db.getFoundingMembers === 'function') {
-    const founders = db.getFoundingMembers();
+  if (foundersGrid) {
+    const founders = (typeof db !== 'undefined' && typeof db.getFoundingMembers === 'function') 
+      ? db.getFoundingMembers() 
+      : [
+          {
+            id: 'HRF-FOUNDER-001',
+            nameBn: 'মো: আহসান হাবিব কাজল',
+            nameEn: 'Md. Ahshan Habib Kajol',
+            titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+            phone: '01400844602',
+            whatsapp: '01400844602',
+            district: 'নটানপাড়া, রৌমারী বাজার, কুড়িগ্রাম',
+            occupation: 'পর্যবেক্ষক, প্রোপ্রাইটর: মেসার্স রিসান ট্রেড ইন্টারন্যাশনাল',
+            image: 'https://i.postimg.cc/9Fp0pmXv/Ahshan-habib-kajol.jpg'
+          },
+          {
+            id: 'HRF-FOUNDER-002',
+            nameBn: 'মো: আল আমিন অনিক',
+            nameEn: 'Md. Al Amin Onik',
+            titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+            phone: '01832630299',
+            whatsapp: '01936758675',
+            district: 'মধ্য ইছাকুড়ি, রৌমারী, কুড়িগ্রাম',
+            occupation: 'হিসাব রক্ষক, চেয়ারম্যান: ঢাকা এয়ার ট্রাভেলস',
+            image: 'https://i.postimg.cc/MTVKjxrd/Md-Al-Amin-Onik-Director.png'
+          },
+          {
+            id: 'HRF-FOUNDER-003',
+            nameBn: 'মো: শাহজামাল',
+            nameEn: 'Md. Shahjamal',
+            titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+            phone: '01953228870',
+            whatsapp: '01306406917',
+            district: 'মির্জাপাড়া, রৌমারী, কুড়িগ্রাম',
+            occupation: 'কোষাধ্যক্ষ, প্রোপ্রাইটর: মেসার্স শাহাজামাল এন্টারপ্রাইজ',
+            image: 'https://i.postimg.cc/RZp0kgHj/Md-Shahjamal.jpg'
+          },
+          {
+            id: 'HRF-FOUNDER-004',
+            nameBn: 'মো: আশিকুর ইসলাম সৈকত',
+            nameEn: 'Md. Ashikur Islam Soikot',
+            titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+            phone: '+96871779081',
+            whatsapp: '+96871779081',
+            district: 'বন্দবেড়, রৌমারী, কুড়িগ্রাম',
+            occupation: 'পর্যবেক্ষক, রেমিটেন্স যোদ্ধা - ওমান',
+            image: 'https://i.postimg.cc/PJMX2yHb/Md-Ashikul-Islam-Soikot.jpg'
+          },
+          {
+            id: 'HRF-FOUNDER-005',
+            nameBn: 'এম এইচ মামুন',
+            nameEn: 'MH Mamun',
+            titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+            phone: '01645215894',
+            whatsapp: '01645215894',
+            district: 'রৌমারী, কুড়িগ্রাম',
+            occupation: 'ম্যানেজিং ডিরেক্টর, ঢাকা এয়ার ট্রাভেলস',
+            image: 'https://i.postimg.cc/RFgdz5vx/MH-Mamun-Kabir.jpg'
+          }
+        ];
+
     foundersGrid.innerHTML = founders.map(f => `
       <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; transition:all 0.3s ease; padding:1.5rem 1rem;" onclick="showFoundingMemberModal('${f.id}')">
         <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.68rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase; letter-spacing:0.5px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
@@ -233,7 +292,7 @@ function renderPublicLeadership() {
   }
 
   if (advisorsGrid) {
-    const advisors = db.data.advisors || [];
+    const advisors = (typeof db !== 'undefined' && db.data && db.data.advisors) ? db.data.advisors : [];
     advisorsGrid.innerHTML = advisors.map(adv => `
       <div class="feature-card" style="text-align:center; cursor:pointer;" onclick="showLeadershipProfile('${adv.nameBn}', '${adv.roleBn}')">
         <div style="width:72px; height:72px; border-radius:50%; background:var(--primary-mid); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:0 auto 1rem auto;"><i class="fas fa-user-tie"></i></div>
@@ -244,7 +303,7 @@ function renderPublicLeadership() {
   }
 
   if (committeeGrid) {
-    const committee = db.data.executiveCommittee || [];
+    const committee = (typeof db !== 'undefined' && db.data && db.data.executiveCommittee) ? db.data.executiveCommittee : [];
     committeeGrid.innerHTML = committee.map((item, idx) => `
       <div class="feature-card" style="text-align:center; cursor:pointer; border-top: 3px solid var(--primary-accent);" onclick="showLeadershipProfile('${item.nameBn}', '${item.titleBn}')">
         <div style="width:64px; height:64px; border-radius:50%; background:rgba(15, 90, 62, 0.1); color:var(--primary-deep); display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin:0 auto 1rem auto;">
@@ -258,8 +317,81 @@ function renderPublicLeadership() {
 }
 
 function showFoundingMemberModal(founderId) {
-  if (typeof db.getFoundingMembers !== 'function') return;
-  const founders = db.getFoundingMembers();
+  const founders = (typeof db !== 'undefined' && typeof db.getFoundingMembers === 'function')
+    ? db.getFoundingMembers()
+    : [
+        {
+          id: 'HRF-FOUNDER-001',
+          nameBn: 'মো: আহসান হাবিব কাজল',
+          nameEn: 'Md. Ahshan Habib Kajol',
+          titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+          titleEn: 'Honorable Founding Member',
+          roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+          phone: '01400844602',
+          whatsapp: '01400844602',
+          district: 'নটানপাড়া, রৌমারী বাজার, কুড়িগ্রাম',
+          occupation: 'পর্যবেক্ষক, প্রোপ্রাইটর: মেসার্স রিসান ট্রেড ইন্টারন্যাশনাল',
+          image: 'https://i.postimg.cc/9Fp0pmXv/Ahshan-habib-kajol.jpg',
+          bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+        },
+        {
+          id: 'HRF-FOUNDER-002',
+          nameBn: 'মো: আল আমিন অনিক',
+          nameEn: 'Md. Al Amin Onik',
+          titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+          titleEn: 'Honorable Founding Member',
+          roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+          phone: '01832630299',
+          whatsapp: '01936758675',
+          district: 'মধ্য ইছাকুড়ি, রৌমারী, কুড়িগ্রাম',
+          occupation: 'হিসাব রক্ষক, চেয়ারম্যান: ঢাকা এয়ার ট্রাভেলস',
+          image: 'https://i.postimg.cc/MTVKjxrd/Md-Al-Amin-Onik-Director.png',
+          bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+        },
+        {
+          id: 'HRF-FOUNDER-003',
+          nameBn: 'মো: শাহজামাল',
+          nameEn: 'Md. Shahjamal',
+          titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+          titleEn: 'Honorable Founding Member',
+          roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+          phone: '01953228870',
+          whatsapp: '01306406917',
+          district: 'মির্জাপাড়া, রৌমারী, কুড়িগ্রাম',
+          occupation: 'কোষাধ্যক্ষ, প্রোপ্রাইটর: মেসার্স শাহাজামাল এন্টারপ্রাইজ',
+          image: 'https://i.postimg.cc/RZp0kgHj/Md-Shahjamal.jpg',
+          bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+        },
+        {
+          id: 'HRF-FOUNDER-004',
+          nameBn: 'মো: আশিকুর ইসলাম সৈকত',
+          nameEn: 'Md. Ashikur Islam Soikot',
+          titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+          titleEn: 'Honorable Founding Member',
+          roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+          phone: '+96871779081',
+          whatsapp: '+96871779081',
+          district: 'বন্দবেড়, রৌমারী, কুড়িগ্রাম',
+          occupation: 'পর্যবেক্ষক, রেমিটেন্স যোদ্ধা - ওমান',
+          image: 'https://i.postimg.cc/PJMX2yHb/Md-Ashikul-Islam-Soikot.jpg',
+          bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+        },
+        {
+          id: 'HRF-FOUNDER-005',
+          nameBn: 'এম এইচ মামুন',
+          nameEn: 'MH Mamun',
+          titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+          titleEn: 'Honorable Founding Member',
+          roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+          phone: '01645215894',
+          whatsapp: '01645215894',
+          district: 'রৌমারী, কুড়িগ্রাম',
+          occupation: 'ম্যানেজিং ডিরেক্টর, ঢাকা এয়ার ট্রাভেলস',
+          image: 'https://i.postimg.cc/RFgdz5vx/MH-Mamun-Kabir.jpg',
+          bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+        }
+      ];
+
   const f = founders.find(x => x.id === founderId);
   if (!f) return;
 
@@ -274,7 +406,7 @@ function showFoundingMemberModal(founderId) {
       <h3 style="font-size:1.5rem; font-weight:800; color:var(--primary-deep); margin-top:1rem; margin-bottom:0.25rem;">${f.nameBn}</h3>
       <p style="font-size:0.9rem; color:var(--text-muted); font-weight:600;">${f.nameEn}</p>
       <span class="badge" style="background:var(--accent-gold); color:#000; font-weight:800; font-size:0.85rem; padding:0.45rem 1rem; margin-top:0.4rem; display:inline-block; border-radius:20px; box-shadow:0 3px 10px rgba(212,175,55,0.3);">
-        <i class="fas fa-lock"></i> ${f.roleBadge}
+        <i class="fas fa-lock"></i> ${f.roleBadge || 'আজীবন প্রতিষ্ঠাতা সদস্য'}
       </span>
     </div>
 
@@ -282,16 +414,16 @@ function showFoundingMemberModal(founderId) {
       <h4 style="font-size:1.05rem; font-weight:700; color:var(--primary-deep); margin-bottom:0.4rem;">
         <i class="fas fa-award" style="color:var(--accent-gold);"></i> পদবী ও ভূমিকা
       </h4>
-      <p style="font-size:0.98rem; font-weight:700; color:var(--primary-deep); margin-bottom:0.4rem;">${f.titleBn} (${f.titleEn})</p>
-      <p style="font-size:0.88rem; color:#444; line-height:1.5; margin:0;">${f.bio}</p>
+      <p style="font-size:0.98rem; font-weight:700; color:var(--primary-deep); margin-bottom:0.4rem;">${f.titleBn}</p>
+      <p style="font-size:0.88rem; color:#444; line-height:1.5; margin:0;">${f.bio || 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'}</p>
     </div>
 
     <div style="background:var(--bg-light); border-radius:var(--radius-md); padding:1.2rem; border:1px solid var(--border-color); margin-bottom:1.5rem; font-size:0.92rem; line-height:1.9;">
       <div><i class="fas fa-id-badge" style="color:var(--primary-mid); width:22px;"></i> <strong>আইডি:</strong> ${f.id}</div>
-      <div><i class="fas fa-briefcase" style="color:var(--primary-accent); width:22px;"></i> <strong>পেশা / প্রতিষ্ঠান:</strong> ${f.occupation}</div>
-      <div><i class="fas fa-map-marker-alt" style="color:var(--accent-gold); width:22px;"></i> <strong>স্থায়ী ঠিকানা:</strong> ${f.district}</div>
-      <div><i class="fas fa-phone-alt" style="color:var(--primary-mid); width:22px;"></i> <strong>মোবাইল নম্বর:</strong> ${f.phone}</div>
-      <div><i class="fab fa-whatsapp" style="color:#25D366; width:22px;"></i> <strong>হোয়াটসঅ্যাপ:</strong> ${f.whatsapp}</div>
+      <div><i class="fas fa-briefcase" style="color:var(--primary-accent); width:22px;"></i> <strong>পেশা / প্রতিষ্ঠান:</strong> ${f.occupation || 'দেওয়া হয়নি'}</div>
+      <div><i class="fas fa-map-marker-alt" style="color:var(--accent-gold); width:22px;"></i> <strong>স্থায়ী ঠিকানা:</strong> ${f.district || 'দেওয়া হয়নি'}</div>
+      <div><i class="fas fa-phone-alt" style="color:var(--primary-mid); width:22px;"></i> <strong>মোবাইল নম্বর:</strong> ${f.phone || 'দেওয়া হয়নি'}</div>
+      <div><i class="fab fa-whatsapp" style="color:#25D366; width:22px;"></i> <strong>হোয়াটসঅ্যাপ:</strong> ${f.whatsapp || 'দেওয়া হয়নি'}</div>
     </div>
 
     <div style="text-align:center;">
