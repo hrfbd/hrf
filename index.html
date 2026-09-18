@@ -145,6 +145,11 @@
 
         <!-- Unified Header Action Buttons -->
         <div style="display:flex; gap:0.5rem; align-items:center;">
+          <button class="notification-bell-btn" onclick="toggleNotificationDrawer()" title="ভিজিটর প্রতিক্রিয়া ও নোটিফিকেশন">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="header-unread-count" style="display:none;">0</span>
+          </button>
+          
           <a href="https://www.facebook.com/profile.php?id=61592795234856" target="_blank" class="btn btn-secondary btn-sm" style="background:#1877F2; color:#fff; border-color:#1877F2; padding:0.4rem 0.6rem;" title="আমাদের ফেসবুক পেজ ভিজিট করুন"><i class="fab fa-facebook-f"></i></a>
           <button class="btn btn-primary btn-sm" onclick="showDonationModal('general')" data-i18n="btn_donate_now"><i class="fas fa-heart"></i> দান করুন</button>
         </div>
@@ -333,21 +338,27 @@
           </div>
 
           <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-user-md"></i></div>
+            <div class="card-img-wrap">
+              <img src="img/medical-activity.jpg" class="dynamic-medical-img" alt="জরুরী চিকিৎসা সেবা">
+            </div>
             <h3>জরুরী চিকিৎসা সেবা</h3>
             <p>অসহায় রোগীদের ঔষধ সরবরাহ, ডায়াগনস্টিক সাপোর্ট ও বিনামূল্যে চিকিৎসা ক্যাম্প আয়োজন।</p>
             <button class="btn btn-sm btn-primary" style="margin-top:1.25rem;" onclick="showDonationModal('medical')">ঔষধ দিন</button>
           </div>
 
           <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-tools"></i></div>
+            <div class="card-img-wrap">
+              <img src="img/self-reliance-activity.jpg" class="dynamic-selfreliance-img" alt="আত্মকর্মসংস্থান প্রকল্প">
+            </div>
             <h3>আত্মকর্মসংস্থান প্রকল্প</h3>
             <p>সেলাই মেশিন বিতরণ, ক্ষুদ্র ব্যবসায়ের মূলধন ও প্রশিক্ষণ দিয়ে স্বাবলম্বী করে তোলা।</p>
             <button class="btn btn-sm btn-primary" style="margin-top:1.25rem;" onclick="showDonationModal('self_reliance')">স্বাবলম্বী করুন</button>
           </div>
 
           <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-wheelchair"></i></div>
+            <div class="card-img-wrap">
+              <img src="img/elderly-activity.jpg" class="dynamic-elderly-img" alt="প্রবীণ সেবা ও বাসস্থান">
+            </div>
             <h3>প্রবীণ সেবা ও বাসস্থান</h3>
             <p>অসহায় প্রবীণদের খাদ্য, পরিধেয় বস্ত্র ও মানবিক সাহচর্য প্রদান।</p>
             <button class="btn btn-sm btn-primary" style="margin-top:1.25rem;" onclick="showDonationModal('elderly')">প্রবীণ সেবা</button>
@@ -918,9 +929,9 @@
             </p>
           </div>
 
-          <div class="card-grid" id="public-founders-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:1.5rem;">
+          <div class="card-grid" id="public-founders-grid" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:1rem;">
             <!-- 1. Md. Ahshan Habib Kajol -->
-            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.5rem 1rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-001')">
+            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.25rem 0.5rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-001')">
               <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.68rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">
                 <i class="fas fa-crown"></i> আজীবন প্রতিষ্ঠাতা
               </div>
@@ -941,8 +952,8 @@
             </div>
 
             <!-- 2. Md. Al Amin Onik -->
-            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.5rem 1rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-002')">
-              <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.68rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">
+            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.25rem 0.5rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-002')">
+              <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:12px; text-transform:uppercase;">
                 <i class="fas fa-crown"></i> আজীবন প্রতিষ্ঠাতা
               </div>
               <div style="position:relative; display:inline-block; margin-top:0.75rem; margin-bottom:1rem;">
@@ -951,9 +962,9 @@
                   <i class="fas fa-shield-alt"></i>
                 </div>
               </div>
-              <h4 style="font-size:1.15rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">মো: আল আমিন অনিক</h4>
+              <h4 style="font-size:1.05rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">মো: আল আমিন অনিক</h4>
               <p style="font-size:0.82rem; color:var(--text-muted); font-weight:600; margin-bottom:0.6rem;">Md. Al Amin Onik</p>
-              <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.82rem; padding:0.4rem 0.85rem; border-radius:var(--radius-sm); font-weight:600; display:inline-block; margin-bottom:0.75rem;">
+              <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.78rem; padding:0.35rem 0.6rem; border-radius:var(--radius-sm); font-weight:600; display:inline-block; margin-bottom:0.75rem;">
                 <i class="fas fa-award" style="color:var(--accent-gold); margin-right:4px;"></i> সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য
               </span>
               <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">
@@ -962,8 +973,8 @@
             </div>
 
             <!-- 3. Md. Shahjamal -->
-            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.5rem 1rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-003')">
-              <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.68rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">
+            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.25rem 0.5rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-003')">
+              <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:12px; text-transform:uppercase;">
                 <i class="fas fa-crown"></i> আজীবন প্রতিষ্ঠাতা
               </div>
               <div style="position:relative; display:inline-block; margin-top:0.75rem; margin-bottom:1rem;">
@@ -972,9 +983,9 @@
                   <i class="fas fa-shield-alt"></i>
                 </div>
               </div>
-              <h4 style="font-size:1.15rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">মো: শাহজামাল</h4>
+              <h4 style="font-size:1.05rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">মো: শাহজামাল</h4>
               <p style="font-size:0.82rem; color:var(--text-muted); font-weight:600; margin-bottom:0.6rem;">Md. Shahjamal</p>
-              <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.82rem; padding:0.4rem 0.85rem; border-radius:var(--radius-sm); font-weight:600; display:inline-block; margin-bottom:0.75rem;">
+              <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.78rem; padding:0.35rem 0.6rem; border-radius:var(--radius-sm); font-weight:600; display:inline-block; margin-bottom:0.75rem;">
                 <i class="fas fa-award" style="color:var(--accent-gold); margin-right:4px;"></i> সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য
               </span>
               <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">
@@ -983,8 +994,8 @@
             </div>
 
             <!-- 4. Md. Ashikur Islam Soikot -->
-            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.5rem 1rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-004')">
-              <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.68rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">
+            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.25rem 0.5rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-004')">
+              <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:12px; text-transform:uppercase;">
                 <i class="fas fa-crown"></i> আজীবন প্রতিষ্ঠাতা
               </div>
               <div style="position:relative; display:inline-block; margin-top:0.75rem; margin-bottom:1rem;">
@@ -993,9 +1004,9 @@
                   <i class="fas fa-shield-alt"></i>
                 </div>
               </div>
-              <h4 style="font-size:1.15rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">মো: আশিকুর ইসলাম সৈকত</h4>
+              <h4 style="font-size:1.05rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">মো: আশিকুর ইসলাম সৈকত</h4>
               <p style="font-size:0.82rem; color:var(--text-muted); font-weight:600; margin-bottom:0.6rem;">Md. Ashikur Islam Soikot</p>
-              <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.82rem; padding:0.4rem 0.85rem; border-radius:var(--radius-sm); font-weight:600; display:inline-block; margin-bottom:0.75rem;">
+              <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.78rem; padding:0.35rem 0.6rem; border-radius:var(--radius-sm); font-weight:600; display:inline-block; margin-bottom:0.75rem;">
                 <i class="fas fa-award" style="color:var(--accent-gold); margin-right:4px;"></i> সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য
               </span>
               <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">
@@ -1004,8 +1015,8 @@
             </div>
 
             <!-- 5. MH Mamun -->
-            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.5rem 1rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-005')">
-              <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.68rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase;">
+            <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; padding:1.25rem 0.5rem;" onclick="showFoundingMemberModal('HRF-FOUNDER-005')">
+              <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.62rem; font-weight:800; padding:3px 7px; border-radius:12px; text-transform:uppercase;">
                 <i class="fas fa-crown"></i> আজীবন প্রতিষ্ঠাতা
               </div>
               <div style="position:relative; display:inline-block; margin-top:0.75rem; margin-bottom:1rem;">
@@ -1014,9 +1025,9 @@
                   <i class="fas fa-shield-alt"></i>
                 </div>
               </div>
-              <h4 style="font-size:1.15rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">এম এইচ মামুন</h4>
+              <h4 style="font-size:1.05rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">এম এইচ মামুন</h4>
               <p style="font-size:0.82rem; color:var(--text-muted); font-weight:600; margin-bottom:0.6rem;">MH Mamun</p>
-              <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.82rem; padding:0.4rem 0.85rem; border-radius:var(--radius-sm); font-weight:600; display:inline-block; margin-bottom:0.75rem;">
+              <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.78rem; padding:0.35rem 0.6rem; border-radius:var(--radius-sm); font-weight:600; display:inline-block; margin-bottom:0.75rem;">
                 <i class="fas fa-award" style="color:var(--accent-gold); margin-right:4px;"></i> সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য
               </span>
               <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">
@@ -1295,6 +1306,127 @@
     <div style="display:flex; gap:6px; align-items:center;">
       <button class="btn btn-primary btn-sm" onclick="triggerPwaInstall()" style="padding:0.4rem 0.85rem; font-size:0.82rem;"><i class="fas fa-download"></i> ইন্সটল</button>
       <button onclick="dismissPwaBanner()" style="background:none; border:none; color:var(--text-muted); font-size:1.1rem; padding:4px; cursor:pointer;" title="বন্ধ করুন"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <!-- Notification Drawer Overlay -->
+  <div id="notification-drawer-overlay" class="notification-drawer-overlay" onclick="if(event.target===this) toggleNotificationDrawer()">
+    <div class="notification-drawer-panel">
+      <div class="notification-drawer-header">
+        <h4 style="margin:0; font-size:1.1rem; color:#fff; display:flex; align-items:center; gap:8px;">
+          <i class="fas fa-bell" style="color:var(--accent-gold);"></i> ভিজিটর প্রতিক্রিয়া ও নোটিফিকেশন
+        </h4>
+        <button onclick="toggleNotificationDrawer()" style="background:none; border:none; color:#fff; font-size:1.3rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="notification-drawer-body" id="notification-drawer-list">
+        <!-- JS renders list here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Member Recruitment Interactive Landing Modal -->
+  <div id="modal-member-campaign" class="modal-overlay" style="display:none;" onclick="if(event.target===this) closeModal('modal-member-campaign')">
+    <div class="modal-content" style="max-width:580px; padding:0; overflow:hidden; border-radius:var(--radius-lg); border:2px solid var(--primary-deep);">
+      <div style="background:linear-gradient(135deg, var(--primary-deep) 0%, #064e3b 100%); color:#fff; padding:1.75rem 1.5rem; text-align:center; position:relative;">
+        <button onclick="closeModal('modal-member-campaign')" style="position:absolute; top:12px; right:15px; background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+        <div style="width:60px; height:60px; border-radius:50%; background:rgba(255,255,255,0.15); color:var(--accent-gold); display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:0 auto 0.75rem auto; border:2px solid var(--accent-gold);">
+          <i class="fas fa-hand-holding-heart"></i>
+        </div>
+        <h3 style="font-size:1.4rem; margin-bottom:0.4rem; color:#fff;">এক মুঠো খাবার মানবিক ফাউন্ডেশন</h3>
+        <p style="font-size:0.92rem; color:rgba(255,255,255,0.9); margin:0;">ক্ষুধামুক্ত ও আত্মনির্ভরশীল বাংলাদেশ গঠনে আপনার একটি ছোট অংশগ্রহণ আনতে পারে ইতিবাচক পরিবর্তন</p>
+      </div>
+
+      <div style="padding:1.5rem; background:#fff;">
+        <form id="campaign-pledge-form" onsubmit="handleCampaignPledgeSubmit(event)">
+          
+          <!-- Willingness Check -->
+          <div class="form-group" style="margin-bottom:1.25rem; background:rgba(15,90,62,0.04); padding:1rem; border-radius:var(--radius-md); border:1px solid rgba(15,90,62,0.15);">
+            <label style="font-weight:700; color:var(--primary-deep); font-size:1rem; display:block; margin-bottom:0.6rem;">
+              <i class="fas fa-question-circle" style="color:var(--primary-mid);"></i> আপনি কি আমাদের ফাউন্ডেশনের নিয়মিত কার্যক্রমে দান/অংশগ্রহণ করতে ইচ্ছুক?
+            </label>
+            <div style="display:flex; gap:1rem;">
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; font-size:0.95rem; color:#059669;">
+                <input type="radio" name="campaign_interested" value="yes" checked onchange="toggleCampaignFields(true)"> হ্যাঁ, আমি অত্যন্ত আগ্রহী
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:600; font-size:0.95rem; color:#64748b;">
+                <input type="radio" name="campaign_interested" value="no" onchange="toggleCampaignFields(false)"> পরে ভেবে দেখব
+              </label>
+            </div>
+          </div>
+
+          <div id="campaign-fields-wrap">
+            <!-- Name, Phone, Address -->
+            <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label style="font-weight:600; font-size:0.88rem;">আপনার নাম *</label>
+                <input type="text" id="campaign-name" class="form-control" placeholder="যেমন: মো: রফিকুল ইসলাম" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label style="font-weight:600; font-size:0.88rem;">মোবাইল / ওয়াটসঅ্যাপ নম্বর *</label>
+                <input type="tel" id="campaign-phone" class="form-control" placeholder="017XXXXXXXX" required>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label style="font-weight:600; font-size:0.88rem;">জেলা / এলাকা</label>
+              <input type="text" id="campaign-district" class="form-control" placeholder="যেমন: রৌমারী, কুড়িগ্রাম">
+            </div>
+
+            <!-- Frequency / Plan Selection -->
+            <div class="form-group" style="margin-bottom:1.25rem;">
+              <label style="font-weight:700; color:var(--primary-deep); font-size:0.92rem; display:block; margin-bottom:0.4rem;">
+                <i class="fas fa-calendar-alt"></i> অনুদানের সময়কাল / পদ্ধতি নির্বাচন করুন *
+              </label>
+              <div class="campaign-pill-group">
+                <div class="campaign-pill-option">
+                  <input type="radio" id="freq-monthly" name="campaign_freq" value="Monthly" data-label="মাসিক" checked>
+                  <label for="freq-monthly">মাসিক</label>
+                </div>
+                <div class="campaign-pill-option">
+                  <input type="radio" id="freq-3m" name="campaign_freq" value="3 Months" data-label="৩ মাস">
+                  <label for="freq-3m">৩ মাস</label>
+                </div>
+                <div class="campaign-pill-option">
+                  <input type="radio" id="freq-6m" name="campaign_freq" value="6 Months" data-label="৬ মাস">
+                  <label for="freq-6m">৬ মাস</label>
+                </div>
+                <div class="campaign-pill-option">
+                  <input type="radio" id="freq-12m" name="campaign_freq" value="12 Months" data-label="১২ মাস">
+                  <label for="freq-12m">১২ মাস (বার্ষিক)</label>
+                </div>
+                <div class="campaign-pill-option">
+                  <input type="radio" id="freq-onetime" name="campaign_freq" value="One-time" data-label="এককালীন">
+                  <label for="freq-onetime">এককালীন</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Donation Amount Choice -->
+            <div class="form-group" style="margin-bottom:1.25rem;">
+              <label style="font-weight:700; color:var(--primary-deep); font-size:0.92rem; display:block; margin-bottom:0.4rem;">
+                <i class="fas fa-coins"></i> আপনি অনুদান হিসেবে কত টাকা দিতে ইচ্ছুক? (টাকা) *
+              </label>
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.5rem; margin-bottom:0.5rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="setCampaignAmount(500)">৳ ৫০০</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="setCampaignAmount(1000)">৳ ১,০০০</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="setCampaignAmount(2000)">৳ ২,০০০</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="setCampaignAmount(5000)">৳ ৫,০০০</button>
+              </div>
+              <input type="number" id="campaign-amount" class="form-control" placeholder="বা কাস্টম পরিমাণ লিখুন (যেমন: 1000)" min="50" required>
+            </div>
+          </div>
+
+          <!-- Feedback / Opinion Box -->
+          <div class="form-group" style="margin-bottom:1.25rem;">
+            <label style="font-weight:600; font-size:0.88rem;"><i class="fas fa-comment-dots"></i> আপনার মতামত বা কোনো পরামর্শ থাকলে লিখুন (ঐচ্ছিক)</label>
+            <textarea id="campaign-opinion" class="form-control" rows="2" placeholder="আপনার অনুভূতি বা ফাউন্ডেশন সম্পর্কে আপনার মূল্যবান মন্তব্য..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="font-size:1.05rem; font-weight:700;">
+            <i class="fas fa-paper-plane"></i> মতামত ও সম্মতি নিশ্চিত করুন
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 
