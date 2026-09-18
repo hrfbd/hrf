@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateLiveHeaderStats();
   renderMealSponsorsBanner();
   applyDynamicImages();
+  renderPublicLeadership();
   if (window.renderFullConstitution) {
     renderFullConstitution();
   }
