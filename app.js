@@ -201,10 +201,36 @@ function renderCustomOldAgeSection() {
   }
 }
 
-// Render Public Leadership (Executive Committee & Advisory Board)
+// Render Public Leadership (Founding Board, Executive Committee & Advisory Board)
 function renderPublicLeadership() {
+  const foundersGrid = document.getElementById('public-founders-grid');
   const advisorsGrid = document.getElementById('public-advisors-grid');
   const committeeGrid = document.getElementById('public-committee-grid');
+
+  if (foundersGrid && typeof db.getFoundingMembers === 'function') {
+    const founders = db.getFoundingMembers();
+    foundersGrid.innerHTML = founders.map(f => `
+      <div class="feature-card" style="text-align:center; position:relative; overflow:hidden; border:2px solid var(--accent-gold); box-shadow:0 8px 25px rgba(212,175,55,0.18); background:linear-gradient(180deg, #ffffff 0%, rgba(254,243,199,0.22) 100%); cursor:pointer; transition:all 0.3s ease; padding:1.5rem 1rem;" onclick="showFoundingMemberModal('${f.id}')">
+        <div style="position:absolute; top:12px; right:12px; background:var(--accent-gold); color:#000; font-size:0.68rem; font-weight:800; padding:3px 9px; border-radius:12px; text-transform:uppercase; letter-spacing:0.5px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+          <i class="fas fa-crown"></i> আজীবন প্রতিষ্ঠাতা
+        </div>
+        <div style="position:relative; display:inline-block; margin-top:0.75rem; margin-bottom:1rem;">
+          <img src="${f.image}" style="width:105px; height:105px; border-radius:50%; object-fit:cover; border:3px solid var(--accent-gold); box-shadow:0 6px 18px rgba(0,0,0,0.16);" onerror="this.src='https://via.placeholder.com/105?text=Founder'">
+          <div style="position:absolute; bottom:2px; right:2px; background:var(--primary-deep); color:var(--accent-gold); border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center; border:2px solid #fff; font-size:0.85rem; box-shadow:0 2px 6px rgba(0,0,0,0.2);" title="আজীবন স্থায়ী প্রতিষ্ঠাতা">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+        </div>
+        <h4 style="font-size:1.15rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">${f.nameBn}</h4>
+        <p style="font-size:0.82rem; color:var(--text-muted); font-weight:600; margin-bottom:0.6rem;">${f.nameEn}</p>
+        <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.82rem; padding:0.4rem 0.85rem; border-radius:var(--radius-sm); font-weight:600; display:inline-block; margin-bottom:0.75rem; box-shadow:0 2px 6px rgba(15,90,62,0.2);">
+          <i class="fas fa-award" style="color:var(--accent-gold); margin-right:4px;"></i> ${f.titleBn}
+        </span>
+        <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">
+          <i class="fas fa-map-marker-alt" style="color:var(--accent-gold);"></i> ${f.district}
+        </div>
+      </div>
+    `).join('');
+  }
 
   if (advisorsGrid) {
     const advisors = db.data.advisors || [];
@@ -229,6 +255,51 @@ function renderPublicLeadership() {
       </div>
     `).join('');
   }
+}
+
+function showFoundingMemberModal(founderId) {
+  if (typeof db.getFoundingMembers !== 'function') return;
+  const founders = db.getFoundingMembers();
+  const f = founders.find(x => x.id === founderId);
+  if (!f) return;
+
+  const html = `
+    <div style="text-align:center; margin-bottom:1.5rem;">
+      <div style="position:relative; display:inline-block;">
+        <img src="${f.image}" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid var(--accent-gold); box-shadow:0 6px 22px rgba(0,0,0,0.22);" onerror="this.src='https://via.placeholder.com/120?text=Founder'">
+        <div style="position:absolute; bottom:4px; right:4px; background:var(--accent-gold); color:#000; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; border:2px solid #fff; font-size:1rem; font-weight:bold; box-shadow:0 2px 6px rgba(0,0,0,0.3);">
+          <i class="fas fa-crown"></i>
+        </div>
+      </div>
+      <h3 style="font-size:1.5rem; font-weight:800; color:var(--primary-deep); margin-top:1rem; margin-bottom:0.25rem;">${f.nameBn}</h3>
+      <p style="font-size:0.9rem; color:var(--text-muted); font-weight:600;">${f.nameEn}</p>
+      <span class="badge" style="background:var(--accent-gold); color:#000; font-weight:800; font-size:0.85rem; padding:0.45rem 1rem; margin-top:0.4rem; display:inline-block; border-radius:20px; box-shadow:0 3px 10px rgba(212,175,55,0.3);">
+        <i class="fas fa-lock"></i> ${f.roleBadge}
+      </span>
+    </div>
+
+    <div style="background:linear-gradient(135deg, rgba(15,90,62,0.08), rgba(212,175,55,0.12)); border-left:4px solid var(--accent-gold); padding:1.2rem; border-radius:0 var(--radius-md) var(--radius-md) 0; margin-bottom:1.5rem;">
+      <h4 style="font-size:1.05rem; font-weight:700; color:var(--primary-deep); margin-bottom:0.4rem;">
+        <i class="fas fa-award" style="color:var(--accent-gold);"></i> পদবী ও ভূমিকা
+      </h4>
+      <p style="font-size:0.98rem; font-weight:700; color:var(--primary-deep); margin-bottom:0.4rem;">${f.titleBn} (${f.titleEn})</p>
+      <p style="font-size:0.88rem; color:#444; line-height:1.5; margin:0;">${f.bio}</p>
+    </div>
+
+    <div style="background:var(--bg-light); border-radius:var(--radius-md); padding:1.2rem; border:1px solid var(--border-color); margin-bottom:1.5rem; font-size:0.92rem; line-height:1.9;">
+      <div><i class="fas fa-id-badge" style="color:var(--primary-mid); width:22px;"></i> <strong>আইডি:</strong> ${f.id}</div>
+      <div><i class="fas fa-briefcase" style="color:var(--primary-accent); width:22px;"></i> <strong>পেশা / প্রতিষ্ঠান:</strong> ${f.occupation}</div>
+      <div><i class="fas fa-map-marker-alt" style="color:var(--accent-gold); width:22px;"></i> <strong>স্থায়ী ঠিকানা:</strong> ${f.district}</div>
+      <div><i class="fas fa-phone-alt" style="color:var(--primary-mid); width:22px;"></i> <strong>মোবাইল নম্বর:</strong> ${f.phone}</div>
+      <div><i class="fab fa-whatsapp" style="color:#25D366; width:22px;"></i> <strong>হোয়াটসঅ্যাপ:</strong> ${f.whatsapp}</div>
+    </div>
+
+    <div style="text-align:center;">
+      <button class="btn btn-secondary" onclick="closeModal()" style="padding:0.6rem 2.5rem;">বন্ধ করুন</button>
+    </div>
+  `;
+
+  openModal('আজন্ম প্রতিষ্ঠাতা সদস্যের পূর্ণাঙ্গ প্রোফাইল', html);
 }
 
 function showLeadershipProfile(nameBn, titleBn) {

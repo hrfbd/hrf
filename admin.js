@@ -823,7 +823,7 @@ class AdminPanel {
                 <td><strong style="color:var(--primary-mid);">৳ ${Number(d.amount).toLocaleString()}</strong></td>
                 <td>
                   <div style="display:flex; gap:0.35rem;">
-                    <button class="btn btn-sm btn-secondary" onclick="adminPanel.promptCorrection('${d.id}', ${d.amount})" title="পরিমাণ সংশোধন">
+                    <button class="btn btn-sm btn-secondary" onclick="adminPanel.openEditDonationModal('${d.id}')" title="তথ্য সম্পাদনা ও সংশোধন">
                       <i class="fas fa-edit"></i>
                     </button>
                     <button class="btn btn-sm btn-secondary" style="background:#dc2626; color:#fff; border:none;" onclick="adminPanel.promptDeleteDonation('${d.id}')" title="স্থায়ী ডিলিট (অডিট অটোলগ)">
@@ -858,7 +858,7 @@ class AdminPanel {
         <td><strong style="color:var(--primary-mid);">৳ ${Number(d.amount).toLocaleString()}</strong></td>
         <td>
           <div style="display:flex; gap:0.35rem;">
-            <button class="btn btn-sm btn-secondary" onclick="adminPanel.promptCorrection('${d.id}', ${d.amount})" title="পরিমাণ সংশোধন">
+            <button class="btn btn-sm btn-secondary" onclick="adminPanel.openEditDonationModal('${d.id}')" title="তথ্য সম্পাদনা ও সংশোধন">
               <i class="fas fa-edit"></i>
             </button>
             <button class="btn btn-sm btn-secondary" style="background:#dc2626; color:#fff; border:none;" onclick="adminPanel.promptDeleteDonation('${d.id}')" title="স্থায়ী ডিলিট (অডিট অটোলগ)">
@@ -873,26 +873,136 @@ class AdminPanel {
     `).join('');
   }
 
-  promptCorrection(donationId, currentAmount) {
+  openEditDonationModal(donationId) {
     if (!auth.hasPermission('correct_finance')) {
       showToast('আপনার অর্থ সংশোধনের অনুমতি নেই! (Permission Denied)', 'error');
       return;
     }
 
-    const newAmt = prompt(`নতুন সঠিক অনুদানের পরিমাণ লিখুন (বর্তমান: ৳${currentAmount}):`, currentAmount);
-    if (newAmt === null || newAmt === '' || isNaN(newAmt)) return;
+    const donation = db.data.donations.find(d => d.id === donationId);
+    if (!donation) {
+      showToast('অনুদান রেকর্ড পাওয়া যায়নি!', 'error');
+      return;
+    }
 
-    const reason = prompt('সংশোধনের সুস্পষ্ট কারণ লিখুন (অডিট ট্রেইলের জন্য আবশ্যক):', 'ভাউচার পেপারস যাচাইজনিত ভুল সংশোধন');
+    const funds = [
+      { id: 'general', name: 'সাধারণ মানবিক ফান্ড (General Fund)' },
+      { id: 'food', name: 'খাদ্য ফান্ড (Food Support)' },
+      { id: 'housing', name: 'আশ্রয় ও গৃহ নির্মাণ ফান্ড (Shelter)' },
+      { id: 'education', name: 'শিক্ষা সহায়তা ফান্ড (Education)' },
+      { id: 'medical', name: 'চিকিৎসা সহায়তা ফান্ড (Medical)' },
+      { id: 'self_reliance', name: 'আত্মকর্মসংস্থান ফান্ড (Self-reliance)' },
+      { id: 'elderly', name: 'প্রবীণ সেবা ফান্ড (Elderly Care)' },
+      { id: 'old_age_home', name: 'বৃদ্ধাশ্রম প্রকল্প ফান্ড (Old Age Home)' },
+      { id: 'religious', name: 'ধর্মীয় ও সামাজিক উন্নয়ন ফান্ড' }
+    ];
+
+    const fundOptions = funds.map(f => 
+      `<option value="${f.id}" ${donation.fund === f.id ? 'selected' : ''}>${f.name}</option>`
+    ).join('');
+
+    const html = `
+      <form id="edit-donation-form" onsubmit="adminPanel.handleEditDonationSubmit(event, '${donation.id}')">
+        <div style="background:var(--bg-warm); padding:0.75rem 1rem; border-radius:var(--radius-md); margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border-color);">
+          <div>
+            <span style="font-size:0.8rem; color:var(--text-muted); display:block;">রেকর্ড ট্র্যাকিং আইডি</span>
+            <strong style="font-size:1.1rem; color:var(--primary-deep);">${donation.id}</strong>
+          </div>
+          <span class="badge badge-verified"><i class="fas fa-shield-alt"></i> অডিট ট্রেইলে সংরক্ষিত হবে</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">দাতার নাম (Donor Name) *</label>
+            <input type="text" id="edit-don-name" class="form-control" required value="${donation.donorName || ''}" placeholder="দাতার নাম লিখুন">
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">মোবাইল নম্বর (Phone Number)</label>
+            <input type="tel" id="edit-don-phone" class="form-control" value="${donation.donorPhone || ''}" placeholder="01XXXXXXXXX">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">ফান্ডের খাত (Fund Category) *</label>
+            <select id="edit-don-fund" class="form-control" required>
+              ${fundOptions}
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">অনুদানের পরিমাণ (Amount in ৳) *</label>
+            <input type="number" id="edit-don-amount" class="form-control" required min="1" value="${donation.amount}">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">অনুদানের তারিখ (Date)</label>
+            <input type="text" id="edit-don-date" class="form-control" value="${donation.date || ''}">
+          </div>
+          <div class="form-group" style="margin-bottom:0; display:flex; align-items:center; padding-top:1.8rem;">
+            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:600; color:var(--primary-deep);">
+              <input type="checkbox" id="edit-don-anon" ${donation.isAnonymous ? 'checked' : ''}>
+              <span>গোপনীয় দাতা (Anonymous Donor)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label class="form-label">সংশোধনের সুস্পষ্ট কারণ (Reason for Audit Log) *</label>
+          <input type="text" id="edit-don-reason" class="form-control" required placeholder="যেমন: নামের বানান ভুল বা টাকার পরিমাণ সংশোধন" value="ভাউচার পেপারস যাচাইজনিত তথ্য সংশোধন">
+        </div>
+
+        <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">বাতিল</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> তথ্য আপডেট ও অডিট লগে সংরক্ষণ
+          </button>
+        </div>
+      </form>
+    `;
+
+    openModal('অনুদানের তথ্য সংশোধন ও বিবরণ সম্পাদনা', html);
+  }
+
+  handleEditDonationSubmit(e, donationId) {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!auth.hasPermission('correct_finance')) {
+      showToast('আপনার অর্থ সংশোধনের অনুমতি নেই!', 'error');
+      return;
+    }
+
+    const donorName = document.getElementById('edit-don-name').value.trim();
+    const donorPhone = document.getElementById('edit-don-phone').value.trim();
+    const fund = document.getElementById('edit-don-fund').value;
+    const amount = Number(document.getElementById('edit-don-amount').value);
+    const date = document.getElementById('edit-don-date').value.trim();
+    const isAnonymous = document.getElementById('edit-don-anon').checked;
+    const reason = document.getElementById('edit-don-reason').value.trim();
+
     if (!reason) {
       alert('সংশোধনের কারণ লেখা বাধ্যতামূলক!');
       return;
     }
 
-    const admin = auth.currentAdmin.name;
-    db.correctDonation(donationId, newAmt, admin, reason);
-    showToast('অনুদানের তথ্য সফলভাবে আপডেট ও অডিট লগে সংরক্ষিত হয়েছে!', 'success');
-    this.showTab('donors-manage');
-    transparency.renderTransparencyDashboard();
+    const admin = (auth.currentAdmin && auth.currentAdmin.name) ? auth.currentAdmin.name : 'Super Admin';
+
+    const updatedData = { donorName, donorPhone, fund, amount, date, isAnonymous };
+
+    if (db.updateDonationRecord(donationId, updatedData, admin, reason)) {
+      showToast('অনুদানের তথ্য সফলভাবে আপডেট এবং অডিট ট্রেইলে সংরক্ষিত হয়েছে!', 'success');
+      closeModal();
+      this.showTab('donors-manage');
+      if (typeof transparency !== 'undefined' && transparency.renderTransparencyDashboard) {
+        transparency.renderTransparencyDashboard();
+      }
+    } else {
+      showToast('আপডেট করতে ব্যর্থ হয়েছে!', 'error');
+    }
+  }
+
+  promptCorrection(donationId, currentAmount) {
+    this.openEditDonationModal(donationId);
   }
 
   promptDeleteDonation(donationId) {
@@ -934,6 +1044,20 @@ class AdminPanel {
           <h3 style="font-size:1.3rem; font-weight:700; color:var(--primary-deep);">পরিচালনা পর্ষদ ও উপদেষ্টা পরিষদ সম্পাদক</h3>
           <p style="font-size:0.88rem; color:var(--text-muted); margin-top:2px;">${committee.length} সদস্যের পরিচালনা পর্ষদ ও ${advisors.length} সদস্যের উপদেষ্টা পরিষদের ছবিসহ বিস্তারিত তথ্য ব্যবস্থাপনা</p>
         </div>
+      </div>
+
+      <div style="background:linear-gradient(135deg, rgba(212,175,55,0.15), rgba(15,90,62,0.1)); border:2px solid var(--accent-gold); padding:1rem 1.25rem; border-radius:var(--radius-md); margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+        <div>
+          <h4 style="font-size:1.05rem; font-weight:800; color:var(--primary-deep); margin-bottom:0.25rem;">
+            <i class="fas fa-crown" style="color:var(--accent-gold);"></i> আজীবন প্রতিষ্ঠাতা সদস্যবৃন্দ (৫ জন) — স্থায়ী ও সমমর্যাদাসম্পন্ন
+          </h4>
+          <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
+            ১. মো: আহসান হাবিব কাজল | ২. মো: আল আমিন অনিক | ৩. মো: শাহজামাল | ৪. মো: আশিকুর ইসলাম সৈকত | ৫. এম এইচ মামুন
+          </p>
+        </div>
+        <span class="badge" style="background:var(--accent-gold); color:#000; font-weight:800; font-size:0.78rem; padding:0.4rem 0.85rem; border-radius:15px; box-shadow:0 2px 6px rgba(0,0,0,0.15);">
+          <i class="fas fa-lock"></i> গঠনতন্ত্রে লকড (Permanent Board)
+        </span>
       </div>
 
       <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">

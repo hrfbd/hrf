@@ -1390,28 +1390,131 @@ class Database {
 
   // Log Correction in Financial Records with Audit Log
   correctDonation(donationId, newAmount, adminUser, reason) {
+    return this.updateDonationRecord(donationId, { amount: newAmount }, adminUser, reason);
+  }
+
+  updateDonationRecord(donationId, updatedData, adminUser, reason) {
     const donation = this.data.donations.find(d => d.id === donationId);
     if (!donation) return false;
 
-    const oldAmountFormatted = `৳${donation.amount.toLocaleString()}`;
-    const newAmountFormatted = `৳${Number(newAmount).toLocaleString()}`;
-    
-    donation.amount = Number(newAmount);
+    const changes = [];
+    if (updatedData.donorName !== undefined && updatedData.donorName !== donation.donorName) {
+      changes.push(`নাম: '${donation.donorName || ''}' ➔ '${updatedData.donorName}'`);
+      donation.donorName = updatedData.donorName;
+    }
+    if (updatedData.donorPhone !== undefined && updatedData.donorPhone !== donation.donorPhone) {
+      changes.push(`ফোন: '${donation.donorPhone || ''}' ➔ '${updatedData.donorPhone}'`);
+      donation.donorPhone = updatedData.donorPhone;
+    }
+    if (updatedData.fund !== undefined && updatedData.fund !== donation.fund) {
+      changes.push(`ফান্ড: '${donation.fund}' ➔ '${updatedData.fund}'`);
+      donation.fund = updatedData.fund;
+    }
+    if (updatedData.amount !== undefined && Number(updatedData.amount) !== Number(donation.amount)) {
+      changes.push(`পরিমাণ: ৳${Number(donation.amount).toLocaleString()} ➔ ৳${Number(updatedData.amount).toLocaleString()}`);
+      donation.amount = Number(updatedData.amount);
+    }
+    if (updatedData.date !== undefined && updatedData.date !== donation.date) {
+      changes.push(`তারিখ: '${donation.date}' ➔ '${updatedData.date}'`);
+      donation.date = updatedData.date;
+    }
+    if (updatedData.isAnonymous !== undefined && Boolean(updatedData.isAnonymous) !== Boolean(donation.isAnonymous)) {
+      changes.push(`গোপনীয়তা: ${donation.isAnonymous ? 'Anonymous' : 'Public'} ➔ ${updatedData.isAnonymous ? 'Anonymous' : 'Public'}`);
+      donation.isAnonymous = Boolean(updatedData.isAnonymous);
+    }
 
-    const auditEntry = {
-      id: `AUD-${String(this.data.auditLogs.length + 1).padStart(4, '0')}`,
-      recordId: donationId,
-      type: 'Donation Correction',
-      oldValue: oldAmountFormatted,
-      newValue: newAmountFormatted,
-      changedBy: adminUser,
-      reason: reason || 'Admin Correction',
-      timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16)
-    };
+    if (changes.length > 0) {
+      const auditEntry = {
+        id: `AUD-${String(this.data.auditLogs.length + 1).padStart(4, '0')}`,
+        recordId: donationId,
+        type: 'Donation Edit',
+        oldValue: 'তথ্য সংশোধন',
+        newValue: changes.join('; '),
+        changedBy: adminUser,
+        reason: reason || 'Admin Update',
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16)
+      };
 
-    this.data.auditLogs.unshift(auditEntry);
-    this.save();
+      this.data.auditLogs.unshift(auditEntry);
+      this.save();
+    }
     return true;
+  }
+
+  // Permanent Unchanging Founding Members (Equal Rank, No Committee Positions)
+  getFoundingMembers() {
+    return [
+      {
+        id: 'HRF-FOUNDER-001',
+        nameBn: 'মো: আহসান হাবিব কাজল',
+        nameEn: 'Md. Ahshan Habib Kajol',
+        titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+        titleEn: 'Honorable Founding Member',
+        roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+        phone: '01400844602',
+        whatsapp: '01400844602',
+        district: 'নটানপাড়া, রৌমারী বাজার, কুড়িগ্রাম',
+        occupation: 'পর্যবেক্ষক, প্রোপ্রাইটর: মেসার্স রিসান ট্রেড ইন্টারন্যাশনাল',
+        image: 'https://i.postimg.cc/9Fp0pmXv/Ahshan-habib-kajol.jpg',
+        bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+      },
+      {
+        id: 'HRF-FOUNDER-002',
+        nameBn: 'মো: আল আমিন অনিক',
+        nameEn: 'Md. Al Amin Onik',
+        titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+        titleEn: 'Honorable Founding Member',
+        roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+        phone: '01832630299',
+        whatsapp: '01936758675',
+        district: 'মধ্য ইছাকুড়ি, রৌমারী, কুড়িগ্রাম',
+        occupation: 'হিসাব রক্ষক, চেয়ারম্যান: ঢাকা এয়ার ট্রাভেলস',
+        image: 'https://i.postimg.cc/MTVKjxrd/Md-Al-Amin-Onik-Director.png',
+        bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+      },
+      {
+        id: 'HRF-FOUNDER-003',
+        nameBn: 'মো: শাহজামাল',
+        nameEn: 'Md. Shahjamal',
+        titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+        titleEn: 'Honorable Founding Member',
+        roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+        phone: '01953228870',
+        whatsapp: '01306406917',
+        district: 'মির্জাপাড়া, রৌমারী, কুড়িগ্রাম',
+        occupation: 'কোষাধ্যক্ষ, প্রোপ্রাইটর: মেসার্স শাহাজামাল এন্টারপ্রাইজ',
+        image: 'https://i.postimg.cc/RZp0kgHj/Md-Shahjamal.jpg',
+        bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+      },
+      {
+        id: 'HRF-FOUNDER-004',
+        nameBn: 'মো: আশিকুর ইসলাম সৈকত',
+        nameEn: 'Md. Ashikur Islam Soikot',
+        titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+        titleEn: 'Honorable Founding Member',
+        roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+        phone: '+96871779081',
+        whatsapp: '+96871779081',
+        district: 'বন্দবেড়, রৌমারী, কুড়িগ্রাম',
+        occupation: 'পর্যবেক্ষক, রেমিটেন্স যোদ্ধা - ওমান',
+        image: 'https://i.postimg.cc/PJMX2yHb/Md-Ashikul-Islam-Soikot.jpg',
+        bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+      },
+      {
+        id: 'HRF-FOUNDER-005',
+        nameBn: 'এম এইচ মামুন',
+        nameEn: 'MH Mamun',
+        titleBn: 'সম্মানিত আজীবন প্রতিষ্ঠাতা সদস্য',
+        titleEn: 'Honorable Founding Member',
+        roleBadge: 'আজীবন প্রতিষ্ঠাতা সদস্য (Permanent Founder)',
+        phone: '01645215894',
+        whatsapp: '01645215894',
+        district: 'রৌমারী, কুড়িগ্রাম',
+        occupation: 'ম্যানেজিং ডিরেক্টর, ঢাকা এয়ার ট্রাভেলস',
+        image: 'https://i.postimg.cc/RFgdz5vx/MH-Mamun-Kabir.jpg',
+        bio: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের অন্যতম শ্রদ্ধেয় আজীবন প্রতিষ্ঠাতা সদস্য ও উদ্যোক্তা।'
+      }
+    ];
   }
 
   // Member CRUD & Approval Engine
