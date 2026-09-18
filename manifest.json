@@ -1,0 +1,25 @@
+{
+  "name": "এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন",
+  "short_name": "এক মুঠো খাবার",
+  "description": "এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন (HRF) — সুবিধাবঞ্চিত, অসহায় ও প্রবীণদের সেবায় নিবেদিত স্বচ্ছ মানবিক প্ল্যাটফর্ম।",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0F5A3E",
+  "theme_color": "#0F5A3E",
+  "icons": [
+    {
+      "src": "img/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

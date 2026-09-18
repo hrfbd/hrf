@@ -1272,6 +1272,7 @@ class Database {
     
     const todayExpensesList = verifiedExpenses.filter(e => e.date.startsWith(todayStr));
     const todayExpense = todayExpensesList.reduce((sum, e) => sum + Number(e.amount), 0);
+    const todayBalance = todayIncome - todayExpense;
 
     // Fund breakdown calculation
     const fundSummaries = this.data.funds.map(f => {
@@ -1295,10 +1296,11 @@ class Database {
       availableBalance,
       todayIncome,
       todayExpense,
+      todayBalance,
       fundSummaries,
       totalDonorsCount,
       volunteersCount: Number(this.data.volunteersCount || 0),
-      beneficiariesCount: Number(this.data.beneficiariesCount || 0)
+      beneficiariesCount: Math.max((this.data.expenses || []).reduce((sum, e) => sum + (Number(e.beneficiariesCount) || 0), 0), Number(this.data.beneficiariesCount || 0))
     };
   }
 
@@ -1362,6 +1364,7 @@ class Database {
     const count = this.data.expenses.length + 52;
     const year = new Date().getFullYear();
     const formattedId = `EMKF-EXP-${year}-${String(count).padStart(6, '0')}`;
+    const benes = Number(expenseData.beneficiariesCount || 0);
 
     const newExpense = {
       id: formattedId,
@@ -1370,6 +1373,7 @@ class Database {
       fund: expenseData.fund,
       description: expenseData.description,
       amount: Number(expenseData.amount),
+      beneficiariesCount: benes,
       paymentMethod: expenseData.paymentMethod || 'Cash',
       paidBy: expenseData.paidBy || adminUser,
       receiver: expenseData.receiver || 'Supplier',
@@ -1379,6 +1383,7 @@ class Database {
     };
 
     this.data.expenses.unshift(newExpense);
+    this.data.beneficiariesCount = (Number(this.data.beneficiariesCount) || 0) + benes;
     this.save();
     return newExpense;
   }

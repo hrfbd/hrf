@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="google" content="notranslate">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন | A Handful of Food and Rehabilitation Foundation (HRF)</title>
   <meta name="description" content="মানুষের পাশে, মানবতার জন্য — একটি মানবিক ও স্বচ্ছ ফাউন্ডেশন। পথশিশু, সুবিধাবঞ্চিত, অসুস্থ ও অসহায় প্রবীণদের সেবায় আমাদের কার্যক্রম।">
+  
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0F5A3E">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="এক মুঠো খাবার">
+  <link rel="apple-touch-icon" href="img/logo.jpg">
+  <link rel="icon" type="image/jpeg" href="img/logo.jpg">
   
   <!-- Open Graph Meta Tags for Facebook/Messenger Link Preview -->
   <meta property="og:title" content="অসহায় মানুষের পাশে দাঁড়ান - এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন">
@@ -148,18 +158,18 @@
 
   <!-- Mobile Drawer Navigation -->
   <div class="mobile-nav-drawer" id="mobile-drawer">
-    <a class="nav-link" onclick="showView('view-home')" data-i18n="nav_home">হোম</a>
-    <a class="nav-link" onclick="showView('view-about')">আমাদের কথা & গঠনতন্ত্র</a>
-    <a class="nav-link" onclick="showView('view-activities')">আমাদের কার্যক্রম</a>
-    <a class="nav-link" onclick="showView('view-old-age')">বৃদ্ধাশ্রম প্রজেক্ট</a>
-    <a class="nav-link" onclick="showView('view-membership', 'directory')">সদস্য ডিরেক্টরি</a>
-    <a class="nav-link" onclick="showView('view-transparency')">হিসাবের স্বচ্ছতা</a>
-    <a class="nav-link" onclick="showView('view-leadership')">নেতৃত্ব</a>
-    <a class="nav-link" onclick="showView('view-contact')">যোগাযোগ</a>
-    <a class="nav-link" href="javascript:void(0)" onclick="showView('view-donor-login')" onmousedown="showView('view-donor-login')">দাতা লগইন</a>
-    <a class="nav-link" href="javascript:void(0)" onclick="showView('view-admin')" onmousedown="showView('view-admin')">এডমিন প্যানেল</a>
-    <div style="display:flex; gap:1rem; margin-top:1rem;">
-      <button class="btn btn-primary btn-sm" onclick="showDonationModal('general')" style="width:100%;" data-i18n="btn_donate_now">দান করুন</button>
+    <a class="nav-link" onclick="showView('view-home')"><i class="fas fa-home" style="color:var(--primary-mid);"></i> <span data-i18n="nav_home">হোম</span></a>
+    <a class="nav-link" onclick="showView('view-about')"><i class="fas fa-book-open" style="color:var(--accent-gold);"></i> আমাদের কথা ও গঠনতন্ত্র</a>
+    <a class="nav-link" onclick="showView('view-activities')"><i class="fas fa-hands-helping" style="color:var(--primary-accent);"></i> আমাদের কার্যক্রম</a>
+    <a class="nav-link" onclick="showView('view-old-age')"><i class="fas fa-home" style="color:var(--accent-gold);"></i> বৃদ্ধাশ্রম প্রজেক্ট</a>
+    <a class="nav-link" onclick="showView('view-membership', 'directory')"><i class="fas fa-address-book" style="color:var(--accent-blue);"></i> সদস্য ডিরেক্টরি</a>
+    <a class="nav-link" onclick="showView('view-leadership')"><i class="fas fa-users-cog" style="color:var(--primary-mid);"></i> পরিচালনা পরিষদ</a>
+    <a class="nav-link" onclick="showView('view-contact')"><i class="fas fa-phone-alt" style="color:var(--primary-accent);"></i> যোগাযোগ</a>
+    <a class="nav-link" href="javascript:void(0)" onclick="showView('view-donor-login')"><i class="fas fa-user-lock" style="color:var(--primary-mid);"></i> দাতা লগইন (Donor Login)</a>
+    <a class="nav-link" href="javascript:void(0)" onclick="showView('view-admin')"><i class="fas fa-shield-alt" style="color:var(--accent-gold);"></i> এডমিন প্যানেল (Admin Login)</a>
+    <a class="nav-link" id="drawer-install-pwa-btn" onclick="triggerPwaInstall()" style="display:none; background:var(--primary-deep); color:#fff; font-weight:700;"><i class="fas fa-download" style="color:var(--accent-gold);"></i> অ্যাপ ইনস্টল করুন (Install App)</a>
+    <div style="display:flex; gap:0.5rem; margin-top:0.75rem;">
+      <button class="btn btn-primary btn-lg" onclick="showDonationModal('general')" style="width:100%; justify-content:center;" data-i18n="btn_donate_now"><i class="fas fa-heart"></i> দান করুন</button>
     </div>
   </div>
 
@@ -240,6 +250,10 @@
     <!-- Live Dynamic Statistics Cards -->
     <section class="section stats-section">
       <div class="container">
+        <div style="margin-bottom: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; background: #ffffff; padding: 0.55rem 1.1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm);">
+          <span style="font-size: 0.84rem; font-weight: 700; color: var(--primary-deep);"><i class="fas fa-clock" style="color: var(--primary-accent); margin-right: 6px;"></i> আজকের লাইভ আপডেট</span>
+          <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;"><i class="fas fa-lock" style="color: var(--accent-gold); margin-right: 5px;"></i> পূর্বের বিস্তারিত হিসাব ও অনুদানের রেকর্ড দেখতে লগইন করুন</span>
+        </div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon green"><i class="fas fa-calendar-day"></i></div>
@@ -250,6 +264,11 @@
             <div class="stat-icon red"><i class="fas fa-receipt"></i></div>
             <div class="stat-value" id="stat-today-exp">৳ 0</div>
             <div class="stat-label" data-i18n="stat_today_expenses">আজকের খরচ</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-wallet"></i></div>
+            <div class="stat-value" id="stat-avail-fund" style="color:var(--primary-mid);">৳ 0</div>
+            <div class="stat-label" data-i18n="stat_today_balance">আজকের অবশিষ্ট ফান্ড</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon gold"><i class="fas fa-utensils"></i></div>
@@ -271,11 +290,6 @@
             <div class="stat-value" id="stat-total-benes">0</div>
             <div class="stat-label" data-i18n="stat_total_beneficiaries">মোট উপকারভোগী</div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon green"><i class="fas fa-wallet"></i></div>
-            <div class="stat-value" id="stat-avail-fund" style="color:var(--primary-mid);">৳ 0</div>
-            <div class="stat-label" data-i18n="stat_available_fund">অবশিষ্ট মোট ফান্ড</div>
-          </div>
         </div>
       </div>
     </section>
@@ -285,7 +299,7 @@
       <div class="container">
         <h3 style="text-align:center; color:var(--primary-deep); margin-bottom:1.5rem; font-size:1.4rem;"><i class="fas fa-users" style="color:var(--primary-accent);"></i> আমাদের গর্বিত পর্ষদ সদস্যবৃন্দ</h3>
         <div class="member-marquee-container" style="position:relative; width:100%; display:flex; overflow:hidden;">
-          <div id="member-marquee-track" style="display:flex; gap:1.5rem; white-space:nowrap; animation: marqueeScroll 25s linear infinite; padding:10px 0;">
+          <div id="member-marquee-track" style="display:flex; gap:1.5rem; white-space:nowrap; animation: marqueeScroll 360s linear infinite; padding:10px 0;">
             <!-- JS will populate this with committee members -->
           </div>
         </div>
@@ -629,91 +643,20 @@
     </section>
   </div>
 
-  <!-- 4. TRANSPARENCY CENTER VIEW -->
+  <!-- 4. TRANSPARENCY CENTER VIEW (PROTECTED IN ADMIN PANEL) -->
   <div id="view-transparency" class="view-section" style="display:none;">
     <section class="section">
-      <div class="container">
-        <h2 class="section-title" data-i18n="sec_transparency_title">লাইভ হিসাবের স্বচ্ছতা</h2>
-        <p class="section-subtitle">আমাদের ডাটাবেজ থেকে স্বয়ংক্রিয় হিসাব। ১ টাকার প্রাপ্তি ও ১ টাকার খরচ প্রকাশ করা হয়।</p>
-
-        <div class="transparency-dashboard">
-          <!-- Summary Balances Header -->
-          <div class="stats-grid" style="margin-bottom:2rem;">
-            <div class="stat-card">
-              <div class="stat-icon blue"><i class="fas fa-folder-open"></i></div>
-              <div class="stat-value" id="trans-opening-bal">৳ 0</div>
-              <div class="stat-label">প্রারম্ভিক ব্যালেন্স (Opening)</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon green"><i class="fas fa-plus-circle"></i></div>
-              <div class="stat-value" id="trans-total-income" style="color:var(--primary-accent);">৳ 0</div>
-              <div class="stat-label">সর্বমোট অনুদান প্রাপ্তি</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon red"><i class="fas fa-minus-circle"></i></div>
-              <div class="stat-value" id="trans-total-expense" style="color:var(--accent-red);">৳ 0</div>
-              <div class="stat-label">সর্বমোট ভাউচার ব্যয়</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon gold"><i class="fas fa-coins"></i></div>
-              <div class="stat-value" id="trans-available-bal" style="color:var(--primary-deep);">৳ 0</div>
-              <div class="stat-label">বর্তমান মোট অবশিষ্ট ব্যালেন্স</div>
-            </div>
-          </div>
-
-          <!-- Fund Cards -->
-          <h3 style="font-size:1.3rem; font-weight:700; color:var(--primary-deep); margin-bottom:1rem;">লাইভ ফান্ডভিত্তিক হিসাব</h3>
-          <div class="fund-cards-grid" id="fund-cards-container">
-            <!-- Rendered Fund Cards -->
-          </div>
-
-          <!-- Chart Visualizer -->
-          <div style="height:320px; margin-bottom:3rem; padding:1rem; background:var(--bg-warm); border-radius:var(--radius-md);">
-            <canvas id="fundChart"></canvas>
-          </div>
-
-          <!-- Income Stream -->
-          <h3 style="font-size:1.3rem; font-weight:700; color:var(--primary-deep); margin-bottom:1rem;">সাম্প্রতিক অনুদান প্রবাহ (Verified Income Stream)</h3>
-          <div class="table-responsive" style="margin-bottom:3rem;">
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>আইডি</th>
-                  <th>তারিখ</th>
-                  <th>দাতার নাম</th>
-                  <th>ফান্ড</th>
-                  <th>পরিমাণ</th>
-                  <th>মেথড</th>
-                  <th>রসিদ</th>
-                </tr>
-              </thead>
-              <tbody id="trans-income-tbody">
-                <!-- Rendered Income -->
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Expense Stream -->
-          <h3 style="font-size:1.3rem; font-weight:700; color:var(--primary-deep); margin-bottom:1rem;">ভাউচার ভিত্তিক ব্যয়ের বিস্তারিত (Verified Expense Vouchers)</h3>
-          <div class="table-responsive">
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>ভাউচার আইডি</th>
-                  <th>তারিখ</th>
-                  <th>ব্যয়ের খাত</th>
-                  <th>ফান্ড</th>
-                  <th>পরিমাণ</th>
-                  <th>মেমো নম্বর</th>
-                  <th>স্ট্যাটাস</th>
-                </tr>
-              </thead>
-              <tbody id="trans-expense-tbody">
-                <!-- Rendered Expense -->
-              </tbody>
-            </table>
-          </div>
+      <div class="container" style="max-width:680px; text-align:center; padding:3.5rem 2rem; background:#fff; border-radius:var(--radius-lg); box-shadow:var(--shadow-md); border:1px solid var(--border-color); margin:3rem auto;">
+        <div style="width:76px; height:76px; border-radius:50%; background:rgba(15, 90, 62, 0.1); color:var(--primary-deep); display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 1.5rem;">
+          <i class="fas fa-shield-alt"></i>
         </div>
+        <h2 style="font-size:1.75rem; color:var(--primary-deep); font-weight:700; margin-bottom:0.85rem;">হিসাবের স্বচ্ছতা ও অডিট প্যানেল (সুরক্ষিত)</h2>
+        <p style="font-size:1rem; color:var(--text-muted); line-height:1.8; margin-bottom:2rem;">
+          ভাউচার ভিত্তিক সর্বমোট অনুদান, ব্যয়ের খতিয়ান, ডিজিটাল রসিদ ও অডিটিং সংক্রান্ত সমস্ত বিস্তারিত হিসাব এডমিন অডিট প্যানেলে স্থানান্তর করা হয়েছে। প্রয়োজনীয় এনকোয়ারি বা অডিটের জন্য এডমিন অ্যাকাউন্টে লগইন করুন।
+        </p>
+        <button class="btn btn-primary btn-lg" onclick="showView('view-admin')" style="padding:0.85rem 2.25rem; font-size:1.05rem; border-radius:50px;">
+          <i class="fas fa-key" style="margin-right:8px;"></i> এডমিন প্যানেলে লগইন করুন
+        </button>
       </div>
     </section>
   </div>
@@ -1212,17 +1155,32 @@
     </div>
   </footer>
 
+  <!-- Floating PWA Install Prompt Banner for Phones -->
+  <div id="pwa-install-banner" class="pwa-install-banner" style="display:none;">
+    <div class="pwa-info">
+      <img src="img/logo.jpg" alt="App Logo" class="pwa-icon">
+      <div class="pwa-text">
+        <h5>এক মুঠো খাবার অ্যাপ</h5>
+        <p>ফোনে অ্যাপ হিসেবে ইন্সটল করে রাখুন</p>
+      </div>
+    </div>
+    <div style="display:flex; gap:6px; align-items:center;">
+      <button class="btn btn-primary btn-sm" onclick="triggerPwaInstall()" style="padding:0.4rem 0.85rem; font-size:0.82rem;"><i class="fas fa-download"></i> ইন্সটল</button>
+      <button onclick="dismissPwaBanner()" style="background:none; border:none; color:var(--text-muted); font-size:1.1rem; padding:4px; cursor:pointer;" title="বন্ধ করুন"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
   <!-- Application JS Modules -->
-  <script src="js/i18n.js?v=6.0"></script>
-  <script src="js/db.js?v=6.0"></script>
-  <script src="js/auth.js?v=6.0"></script>
-  <script src="js/constitution.js?v=6.0"></script>
-  <script src="js/receipt.js?v=6.0"></script>
-  <script src="js/transparency.js?v=6.0"></script>
-  <script src="js/donor.js?v=6.0"></script>
-  <script src="js/admin.js?v=6.0"></script>
-  <script src="js/app.js?v=6.0"></script>
-  <script src="js/quick-pledge.js?v=6.0"></script>
-  <script src="js/activity-articles.js?v=6.0"></script>
+  <script src="js/i18n.js?v=8.0"></script>
+  <script src="js/db.js?v=8.0"></script>
+  <script src="js/auth.js?v=8.0"></script>
+  <script src="js/constitution.js?v=8.0"></script>
+  <script src="js/receipt.js?v=8.0"></script>
+  <script src="js/transparency.js?v=8.0"></script>
+  <script src="js/donor.js?v=8.0"></script>
+  <script src="js/admin.js?v=8.0"></script>
+  <script src="js/app.js?v=8.0"></script>
+  <script src="js/quick-pledge.js?v=8.0"></script>
+  <script src="js/activity-articles.js?v=8.0"></script>
 </body>
 </html>

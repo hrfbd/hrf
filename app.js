@@ -13,6 +13,18 @@ document.addEventListener('DOMContentLoaded', () => {
     renderFullConstitution();
   }
 
+  // Handle URL Hash Anchors (e.g. #chap-10) for direct chapter links
+  if (window.location.hash) {
+    const hash = window.location.hash;
+    if (hash.startsWith('#chap-') || hash.includes('about') || hash.includes('constitution') || hash.includes('mission')) {
+      showView('view-about');
+      setTimeout(() => {
+        const targetEl = document.querySelector(hash);
+        if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 350);
+    }
+  }
+
   // Database update re-renders
   document.addEventListener('dbUpdated', () => {
     transparency.renderTransparencyDashboard();
@@ -445,6 +457,12 @@ function initAppRouter() {
     toggleBtn.addEventListener('click', () => {
       drawer.classList.toggle('open');
     });
+
+    drawer.querySelectorAll('a, button').forEach(link => {
+      link.addEventListener('click', () => {
+        drawer.classList.remove('open');
+      });
+    });
   }
 
   // Header scroll detection
@@ -492,7 +510,8 @@ function updateLiveHeaderStats() {
   if (elBenes) elBenes.innerText = summary.beneficiariesCount.toLocaleString();
 
   const elAvail = document.getElementById('stat-avail-fund');
-  if (elAvail) elAvail.innerText = `৳ ${summary.availableBalance.toLocaleString()}`;
+  const tBal = summary.todayBalance !== undefined ? summary.todayBalance : (summary.todayIncome - summary.todayExpense);
+  if (elAvail) elAvail.innerText = `৳ ${tBal.toLocaleString()}`;
 
   // Update Old Age Home Fund Stats
   const oldAgeFund = summary.fundSummaries.find(f => f.id === 'old_age_home');
@@ -1174,5 +1193,63 @@ function showMemberProfile(memberId) {
 
   openModal('সদস্য প্রোফাইল', html);
 }
+
+// ==========================================
+// PWA (Progressive Web App) Support & Install Handler
+// ==========================================
+let deferredPwaPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => console.log('PWA Service Worker registered:', reg.scope))
+      .catch((err) => console.log('PWA Service Worker registration failed:', err));
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPwaPrompt = e;
+
+  // Show PWA install button in drawer & floating banner
+  const drawerBtn = document.getElementById('drawer-install-pwa-btn');
+  if (drawerBtn) drawerBtn.style.display = 'flex';
+
+  const banner = document.getElementById('pwa-install-banner');
+  if (banner && !sessionStorage.getItem('pwa_banner_dismissed')) {
+    banner.style.display = 'flex';
+  }
+});
+
+function triggerPwaInstall() {
+  if (deferredPwaPrompt) {
+    deferredPwaPrompt.prompt();
+    deferredPwaPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        showToast('ধন্যবাদ! অ্যাপটি আপনার ফোনে সফলভাবে ইনস্টল হচ্ছে।', 'success');
+      }
+      deferredPwaPrompt = null;
+      dismissPwaBanner();
+    });
+  } else {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      alert('iPhone/iPad এ ইনস্টল করতে:\n১. Safari ব্রাউজারের নিচে "Share" (শেয়ার) আইকনে ট্যাপ করুন।\n২. নিচে স্ক্রোল করে "Add to Home Screen" বেছে নিন।');
+    } else {
+      showToast('অ্যাপটি ইতোমধ্যেই ইনস্টল করা হয়েছে অথবা আপনার ব্রাউজার অটো-ইনস্টল সাপোর্ট করছে না।', 'warning');
+    }
+  }
+}
+
+function dismissPwaBanner() {
+  const banner = document.getElementById('pwa-install-banner');
+  if (banner) banner.style.display = 'none';
+  sessionStorage.setItem('pwa_banner_dismissed', 'true');
+}
+
+window.addEventListener('appinstalled', () => {
+  showToast('এক মুঠো খাবার অ্যাপ সফলভাবে আপনার ডিভাইসে ইনস্টল হয়েছে!', 'success');
+  dismissPwaBanner();
+});
 
 

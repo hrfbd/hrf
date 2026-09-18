@@ -62,6 +62,9 @@ class AdminPanel {
             <a class="sidebar-item active" id="tab-btn-overview" onclick="adminPanel.showTab('overview')">
               <i class="fas fa-chart-line"></i> ড্যাশবোর্ড ওভারভিউ
             </a>
+            <a class="sidebar-item" id="tab-btn-transparency-manage" onclick="adminPanel.showTab('transparency-manage')">
+              <i class="fas fa-calculator" style="color:var(--primary-accent);"></i> হিসাবের স্বচ্ছতা ও লাইভ অডিট
+            </a>
             <a class="sidebar-item" id="tab-btn-members-manage" onclick="adminPanel.showTab('members-manage')">
               <i class="fas fa-id-card"></i> সদস্য অনুমোদন ও তথ্য
             </a>
@@ -223,6 +226,8 @@ class AdminPanel {
           </div>
         </div>
       `;
+    } else if (tabKey === 'transparency-manage') {
+      this.renderTransparencyManager(container);
     } else if (tabKey === 'members-manage') {
       this.renderMembersManager(container);
     } else if (tabKey === 'donors-manage') {
@@ -248,6 +253,105 @@ class AdminPanel {
     } else if (tabKey === 'pages-manage') {
       this.renderPagesManager(container);
     }
+  }
+
+  // ==========================================
+  // TRANSPARENCY & AUDIT CENTER MANAGER
+  // ==========================================
+  renderTransparencyManager(container) {
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h3 style="font-size:1.35rem; font-weight:700; color:var(--primary-deep);"><i class="fas fa-calculator" style="color:var(--primary-accent); margin-right:8px;"></i> হিসাবের স্বচ্ছতা ও লাইভ অডিট (Transparency & Audit Center)</h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:2px;">ডাটাবেজ থেকে স্বয়ংক্রিয় অডিট হিসাব, সাম্প্রতিক অনুদান প্রবাহ এবং ভাউচার ভিত্তিক ব্যয়ের লাইভ স্টেটমেন্ট</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="transparency.renderTransparencyDashboard()"><i class="fas fa-sync-alt"></i> ডাটা রিফ্রেশ করুন</button>
+      </div>
+
+      <div class="transparency-dashboard" style="background:#fff; padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--border-color); box-shadow:var(--shadow-sm);">
+        <!-- Summary Balances Header -->
+        <div class="stats-grid" style="margin-bottom:2rem;">
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-folder-open"></i></div>
+            <div class="stat-value" id="trans-opening-bal">৳ 0</div>
+            <div class="stat-label">প্রারম্ভিক ব্যালেন্স (Opening)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-plus-circle"></i></div>
+            <div class="stat-value" id="trans-total-income" style="color:var(--primary-accent);">৳ 0</div>
+            <div class="stat-label">সর্বমোট অনুদান প্রাপ্তি</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="fas fa-minus-circle"></i></div>
+            <div class="stat-value" id="trans-total-expense" style="color:var(--accent-red);">৳ 0</div>
+            <div class="stat-label">সর্বমোট ভাউচার ব্যয়</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon gold"><i class="fas fa-coins"></i></div>
+            <div class="stat-value" id="trans-available-bal" style="color:var(--primary-deep);">৳ 0</div>
+            <div class="stat-label">বর্তমান মোট অবশিষ্ট ব্যালেন্স</div>
+          </div>
+        </div>
+
+        <!-- Fund Cards -->
+        <h4 style="font-size:1.15rem; font-weight:700; color:var(--primary-deep); margin-bottom:1rem;"><i class="fas fa-wallet" style="color:var(--primary-mid); margin-right:6px;"></i> লাইভ ফান্ডভিত্তিক হিসাব</h4>
+        <div class="fund-cards-grid" id="fund-cards-container" style="margin-bottom:2rem;">
+          <!-- Rendered Fund Cards -->
+        </div>
+
+        <!-- Chart Visualizer -->
+        <h4 style="font-size:1.15rem; font-weight:700; color:var(--primary-deep); margin-bottom:1rem;"><i class="fas fa-chart-bar" style="color:var(--primary-accent); margin-right:6px;"></i> তহবিল ও ব্যয়ের ভিজ্যুয়াল অডিট চার্ট</h4>
+        <div style="height:320px; margin-bottom:2.5rem; padding:1rem; background:var(--bg-warm); border-radius:var(--radius-md); border:1px solid var(--border-color);">
+          <canvas id="fundChart"></canvas>
+        </div>
+
+        <!-- Income Stream -->
+        <h4 style="font-size:1.15rem; font-weight:700; color:var(--primary-deep); margin-bottom:1rem;"><i class="fas fa-hand-holding-usd" style="color:var(--primary-accent); margin-right:6px;"></i> সাম্প্রতিক অনুদান প্রবাহ (Verified Income Stream)</h4>
+        <div class="table-responsive" style="margin-bottom:2.5rem;">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>আইডি</th>
+                <th>তারিখ</th>
+                <th>দাতার নাম</th>
+                <th>ফান্ড</th>
+                <th>পরিমাণ</th>
+                <th>মেথড</th>
+                <th>রসিদ</th>
+              </tr>
+            </thead>
+            <tbody id="trans-income-tbody">
+              <!-- Rendered Income -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Expense Stream -->
+        <h4 style="font-size:1.15rem; font-weight:700; color:var(--primary-deep); margin-bottom:1rem;"><i class="fas fa-receipt" style="color:var(--accent-red); margin-right:6px;"></i> ভাউচার ভিত্তিক ব্যয়ের বিস্তারিত (Verified Expense Vouchers)</h4>
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>ভাউচার আইডি</th>
+                <th>তারিখ</th>
+                <th>ব্যয়ের খাত</th>
+                <th>ফান্ড</th>
+                <th>পরিমাণ</th>
+                <th>মেমো নম্বর</th>
+                <th>স্ট্যাটাস</th>
+              </tr>
+            </thead>
+            <tbody id="trans-expense-tbody">
+              <!-- Rendered Expense -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    setTimeout(() => {
+      transparency.renderTransparencyDashboard();
+    }, 50);
   }
 
   // ==========================================
@@ -1370,6 +1474,10 @@ class AdminPanel {
             <input type="number" id="exp-amount" class="form-control" placeholder="1000" required min="1">
           </div>
           <div class="form-group">
+            <label class="form-label"><i class="fas fa-smile-beam" style="color:var(--accent-gold);"></i> উপকারভোগীর সংখ্যা (জন)</label>
+            <input type="number" id="exp-beneficiaries" class="form-control" placeholder="যেমন: ২৫০" min="0" value="0">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
             <label class="form-label">প্রাপক / সরবরাহকারী (Receiver)</label>
             <input type="text" id="exp-receiver" class="form-control" placeholder="সাপ্লায়ারের নাম">
           </div>
@@ -1424,12 +1532,14 @@ class AdminPanel {
   handleExpenseSubmit(e) {
     e.preventDefault();
     const expDate = document.getElementById('exp-date') ? document.getElementById('exp-date').value : null;
+    const benes = document.getElementById('exp-beneficiaries') ? document.getElementById('exp-beneficiaries').value : 0;
 
     const data = {
       category: document.getElementById('exp-cat').value,
       fund: document.getElementById('exp-fund').value,
       date: expDate,
       amount: document.getElementById('exp-amount').value,
+      beneficiariesCount: Number(benes || 0),
       receiver: document.getElementById('exp-receiver').value,
       description: document.getElementById('exp-desc').value,
       paidBy: auth.currentAdmin.name,
