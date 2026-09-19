@@ -65,8 +65,14 @@ class AdminPanel {
             <a class="sidebar-item" id="tab-btn-transparency-manage" onclick="adminPanel.showTab('transparency-manage')">
               <i class="fas fa-calculator" style="color:var(--primary-accent);"></i> হিসাবের স্বচ্ছতা ও লাইভ অডিট
             </a>
+            <a class="sidebar-item" id="tab-btn-payment-manage" onclick="adminPanel.showTab('payment-manage')">
+              <i class="fas fa-wallet" style="color:var(--accent-gold);"></i> পেমেন্ট মাধ্যম ব্যবস্থাপনা
+            </a>
             <a class="sidebar-item" id="tab-btn-members-manage" onclick="adminPanel.showTab('members-manage')">
               <i class="fas fa-id-card"></i> সদস্য অনুমোদন ও তথ্য
+            </a>
+            <a class="sidebar-item" id="tab-btn-share-outreach" onclick="adminPanel.showTab('share-outreach')">
+              <i class="fas fa-paper-plane" style="color:#25D366;"></i> সহায়তার বার্তা (Share & Outreach)
             </a>
             <a class="sidebar-item" id="tab-btn-donors-manage" onclick="adminPanel.showTab('donors-manage')">
               <i class="fas fa-users"></i> অনুদান ও দাতা ব্যবস্থাপনা
@@ -97,6 +103,12 @@ class AdminPanel {
             </a>
             <a class="sidebar-item" id="tab-btn-media-manage" onclick="adminPanel.showTab('media-manage')">
               <i class="fas fa-images"></i> মিডিয়া ও ছবি পরিবর্তন
+            </a>
+            <a class="sidebar-item" id="tab-btn-foundation-settings" onclick="adminPanel.showTab('foundation-settings')">
+              <i class="fas fa-cog" style="color:var(--primary-accent);"></i> ফাউন্ডেশন & প্রাইভেসি সেটিংস
+            </a>
+            <a class="sidebar-item" id="tab-btn-campaign-manage" onclick="adminPanel.showTab('campaign-manage')">
+              <i class="fas fa-share-alt" style="color:#25D366;"></i> সদস্য সংগ্রহ ও সোশ্যাল শেয়ার কেন্দ্র
             </a>
             <a class="sidebar-item" id="tab-btn-pages-manage" onclick="adminPanel.showTab('pages-manage')">
               <i class="fas fa-edit" style="color:var(--accent-gold);"></i> আমাদের কথা ও কার্যক্রম কন্টেন্ট এডিটর
@@ -228,8 +240,12 @@ class AdminPanel {
       `;
     } else if (tabKey === 'transparency-manage') {
       this.renderTransparencyManager(container);
+    } else if (tabKey === 'payment-manage') {
+      this.renderPaymentMethodsManager(container);
     } else if (tabKey === 'members-manage') {
       this.renderMembersManager(container);
+    } else if (tabKey === 'share-outreach') {
+      this.renderShareOutreachManager(container);
     } else if (tabKey === 'donors-manage') {
       this.renderDonorsManager(container);
     } else if (tabKey === 'leadership-manage') {
@@ -250,6 +266,10 @@ class AdminPanel {
       this.renderBloodManager(container);
     } else if (tabKey === 'media-manage') {
       this.renderMediaManager(container);
+    } else if (tabKey === 'foundation-settings') {
+      this.renderFoundationSettingsManager(container);
+    } else if (tabKey === 'campaign-manage') {
+      this.renderCampaignManager(container);
     } else if (tabKey === 'pages-manage') {
       this.renderPagesManager(container);
     }
@@ -1945,6 +1965,9 @@ class AdminPanel {
         ${this.createMediaUploadCard('heroImage', 'প্রধান কভার ছবি (Hero Image)', 'img/hero-cover.jpg')}
         ${this.createMediaUploadCard('foodActivityImage', 'খাদ্য বিতরণ ছবি', 'img/food-activity.jpg')}
         ${this.createMediaUploadCard('eduActivityImage', 'শিক্ষা সহায়তা ছবি', 'img/education-activity.jpg')}
+        ${this.createMediaUploadCard('medicalActivityImage', 'জরুরী চিকিৎসা সেবা ছবি', 'img/medical-activity.jpg')}
+        ${this.createMediaUploadCard('selfRelianceActivityImage', 'আত্মকর্মসংস্থান ছবি', 'img/self-reliance-activity.jpg')}
+        ${this.createMediaUploadCard('elderlyActivityImage', 'প্রবীণ সেবা ও বাসস্থান ছবি', 'img/elderly-activity.jpg')}
         ${this.createMediaUploadCard('oldAgeHomeImage', 'বৃদ্ধাশ্রম প্রজেক্ট ছবি', 'img/old-age-home-render.jpg')}
       </div>
     `;
@@ -1982,6 +2005,12 @@ class AdminPanel {
           document.querySelectorAll('.dynamic-food-img').forEach(img => img.src = base64Str);
         } else if (key === 'eduActivityImage') {
           document.querySelectorAll('.dynamic-edu-img').forEach(img => img.src = base64Str);
+        } else if (key === 'medicalActivityImage') {
+          document.querySelectorAll('.dynamic-medical-img').forEach(img => img.src = base64Str);
+        } else if (key === 'selfRelianceActivityImage') {
+          document.querySelectorAll('.dynamic-selfreliance-img').forEach(img => img.src = base64Str);
+        } else if (key === 'elderlyActivityImage') {
+          document.querySelectorAll('.dynamic-elderly-img').forEach(img => img.src = base64Str);
         } else if (key === 'oldAgeHomeImage') {
           document.querySelectorAll('.dynamic-oldage-img').forEach(img => img.src = base64Str);
         }
@@ -2152,6 +2181,661 @@ class AdminPanel {
         this.renderBloodManager(document.getElementById('admin-tab-content'));
       }
     }
+  }
+
+  // ==========================================
+  // MEMBER CAMPAIGN & SOCIAL SHARE MANAGER
+  // ==========================================
+  renderCampaignManager(container) {
+    const responses = (typeof db !== 'undefined' && db.getPledgeResponses) ? db.getPledgeResponses() : [];
+    const unreadCount = (typeof db !== 'undefined' && db.getUnreadPledgeCount) ? db.getUnreadPledgeCount() : 0;
+    const siteUrl = window.location.origin + window.location.pathname + '?invite=1';
+
+    const shareMsg = `এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন (HRF)-এর একজন প্রতিনিধি হয়ে সমাজে আলোর বার্তা ছড়িয়ে দিন। আমাদের নিয়মিত মানবিক কার্যক্রমে দান ও যুক্ত হতে নিচের লিংকে ক্লিক করুন:\n${siteUrl}`;
+    const encodedMsg = encodeURIComponent(shareMsg);
+    const encodedUrl = encodeURIComponent(siteUrl);
+
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h3 style="font-size:1.35rem; font-weight:700; color:var(--primary-deep);">
+            <i class="fas fa-share-alt" style="color:#25D366; margin-right:8px;"></i> সদস্য সংগ্রহ ও সোশ্যাল শেয়ার কেন্দ্র (Campaign Manager)
+          </h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:2px;">১-ক্লিক সোশ্যাল মিডিয়া শেয়ারিং এবং ভিজিটরদের মতামতের লাইভ প্রতিক্রিয়া ও নোটিফিকেশন কেন্দ্র</p>
+        </div>
+        <span class="badge" style="background:var(--primary-deep); color:#fff; font-size:0.9rem; padding:0.5rem 1rem;">
+          <i class="fas fa-bell"></i> অপঠিত বার্তা: ${unreadCount} টি
+        </span>
+      </div>
+
+      <!-- 1-Click Social Sharing Box -->
+      <div style="background:#fff; border-radius:var(--radius-lg); border:1px solid var(--border-color); padding:1.5rem; margin-bottom:2rem; box-shadow:var(--shadow-sm);">
+        <h4 style="color:var(--primary-deep); margin-bottom:0.75rem; font-size:1.1rem;"><i class="fas fa-bullhorn" style="color:var(--accent-gold);"></i> ১-ক্লিক সোশ্যাল মিডিয়া ইনভাইট লিংক শেয়ার করুন</h4>
+        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">নিচের বাটনগুলিতে ক্লিক করে সরাসরি ফেসবুক, হোয়াটসঅ্যাপ বা টেলিগ্রামে ক্যাম্পেইন মেসেজ ও লিংক মেসেজ আকারে পাঠান:</p>
+
+        <div style="background:var(--bg-subtle); padding:1rem; border-radius:var(--radius-sm); font-size:0.88rem; color:var(--text-color); margin-bottom:1.25rem; font-family:monospace; border:1px dashed var(--border-color); word-break:break-all;">
+          ${shareMsg}
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:0.75rem;">
+          <a href="https://wa.me/?text=${encodedMsg}" target="_blank" class="btn btn-secondary" style="background:#25D366; color:#fff; border:none;">
+            <i class="fab fa-whatsapp"></i> WhatsApp-এ শেয়ার করুন
+          </a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedMsg}" target="_blank" class="btn btn-secondary" style="background:#1877F2; color:#fff; border:none;">
+            <i class="fab fa-facebook-f"></i> Facebook-এ শেয়ার করুন
+          </a>
+          <a href="https://t.me/share/url?url=${encodedUrl}&text=${encodedMsg}" target="_blank" class="btn btn-secondary" style="background:#229ED9; color:#fff; border:none;">
+            <i class="fab fa-telegram-plane"></i> Telegram-এ শেয়ার করুন
+          </a>
+          <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('${siteUrl}'); showToast('ক্যাম্পেইন লিংক ক্লিপবোর্ডে কপি করা হয়েছে!', 'success');">
+            <i class="fas fa-copy"></i> লিংক কপি করুন
+          </button>
+        </div>
+      </div>
+
+      <!-- Submitted Visitor Feedback & Pledges -->
+      <div style="background:#fff; border-radius:var(--radius-lg); border:1px solid var(--border-color); padding:1.5rem; box-shadow:var(--shadow-sm);">
+        <h4 style="color:var(--primary-deep); margin-bottom:1rem; font-size:1.1rem;"><i class="fas fa-list-ul"></i> ভিজিটর প্রতিক্রিয়া ও সংগৃহীত ইনভাইট ডেটা (${responses.length})</h4>
+
+        ${responses.length === 0 ? `
+          <div style="text-align:center; padding:2.5rem 1rem; color:var(--text-muted);">
+            <i class="fas fa-inbox" style="font-size:2.5rem; margin-bottom:0.75rem; opacity:0.4;"></i>
+            <p>এখনও কোনো ভিজিটর প্রতিক্রিয়া জমা হয়নি। উপরে শেয়ার বাটন দিয়ে ক্যাম্পেইন শেয়ার করুন।</p>
+          </div>
+        ` : `
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>তারিখ</th>
+                  <th>নাম ও ঠিকানা</th>
+                  <th>ফোন / হোয়াটসঅ্যাপ</th>
+                  <th>আগ্রহ</th>
+                  <th>অনুদানের বিবরণ</th>
+                  <th>মতামত / মন্তব্য</th>
+                  <th>অ্যাকশন</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${responses.map(item => `
+                  <tr style="${!item.read ? 'background:#f0fdf4; font-weight:600;' : ''}">
+                    <td>${new Date(item.date).toLocaleDateString('bn-BD')}</td>
+                    <td>
+                      <div><strong>${item.name}</strong></div>
+                      <small style="color:var(--text-muted);">${item.district || '-'}</small>
+                    </td>
+                    <td>${item.phone || '-'}</td>
+                    <td>
+                      ${item.interested ? '<span class="badge badge-verified" style="background:#059669;">হ্যাঁ, আগ্রহী</span>' : '<span class="badge" style="background:#64748b; color:#fff;">পরে ভেবে দেখব</span>'}
+                    </td>
+                    <td>
+                      ${item.interested ? `<strong>৳ ${item.amount.toLocaleString()}</strong> (${item.frequencyLabelBn || 'মাসিক'})` : '-'}
+                    </td>
+                    <td style="max-width:200px; font-style:italic;">${item.opinion || '-'}</td>
+                    <td>
+                      <div style="display:flex; gap:4px;">
+                        ${item.phone ? `
+                          <a href="https://wa.me/88${item.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn btn-secondary btn-sm" style="background:#25D366; color:#fff; padding:3px 7px; font-size:0.75rem;" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                          </a>
+                        ` : ''}
+                        ${!item.read ? `
+                          <button class="btn btn-secondary btn-sm" style="padding:3px 7px; font-size:0.75rem;" onclick="adminPanel.markReadAndRefresh('${item.id}')" title="পড়া হয়েছে হিসেবে চিহ্নিত করুন">
+                            <i class="fas fa-check"></i>
+                          </button>
+                        ` : ''}
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `}
+      </div>
+    `;
+  }
+
+  markReadAndRefresh(id) {
+    if (typeof db !== 'undefined' && db.markPledgeResponseRead) {
+      db.markPledgeResponseRead(id);
+      this.showTab('campaign-manage');
+      if (typeof updateNotificationBadge === 'function') updateNotificationBadge();
+    }
+  }
+
+  // ==========================================
+  // PAYMENT METHODS MANAGER
+  // ==========================================
+  renderPaymentMethodsManager(container) {
+    const list = db.getPaymentMethods();
+
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h3 style="font-size:1.35rem; font-weight:700; color:var(--primary-deep);"><i class="fas fa-wallet" style="color:var(--accent-gold); margin-right:8px;"></i> পেমেন্ট মাধ্যম ব্যবস্থাপনা (Admin Payment Methods)</h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:2px;">পাবলিক ওয়েবসাইটের অনুদান মাধ্যমসমূহ (বিকাশ, নগদ, রকেট, ব্যাংক) এখানে এডমিন কনফিগার করুন</p>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="adminPanel.openPaymentMethodModal()"><i class="fas fa-plus"></i> নতুন পেমেন্ট মাধ্যম যোগ করুন</button>
+      </div>
+
+      <div class="table-responsive" style="background:#fff; border-radius:var(--radius-lg); border:1px solid var(--border-color); padding:1.25rem; box-shadow:var(--shadow-sm);">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>ক্রম</th>
+              <th>মাধ্যমের নাম</th>
+              <th>টাইপ</th>
+              <th>অফিশিয়াল নম্বর / একাউন্ট</th>
+              <th>একাউন্ট হোল্ডার / ব্যাংক</th>
+              <th>পাবলিক স্ট্যাটাস</th>
+              <th>সক্রিয় স্ট্যাটাস</th>
+              <th>অ্যাকশন</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(pm => `
+              <tr>
+                <td><strong>${pm.displayOrder || 1}</strong></td>
+                <td><strong>${pm.name}</strong></td>
+                <td><span class="badge badge-verified">${pm.type}</span></td>
+                <td>
+                  <strong style="color:var(--primary-deep); font-family:monospace; font-size:1rem;">${pm.number || '(খালি / নম্বর দেওয়া হয়নি)'}</strong>
+                </td>
+                <td>
+                  ${pm.accountName || ''}<br>
+                  <small style="color:var(--text-muted);">${pm.bankName ? `${pm.bankName} (${pm.branch || ''})` : pm.accountType || ''}</small>
+                </td>
+                <td>
+                  <span class="badge ${pm.publicVisible ? 'badge-verified' : 'badge-rejected'}">
+                    ${pm.publicVisible ? 'পাবলিক দৃশ্যমান' : 'পাবলিকে লুকানো'}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge ${pm.active ? 'badge-verified' : 'badge-pending'}">
+                    ${pm.active ? 'সক্রিয়' : 'নিষ্ক্রিয়'}
+                  </span>
+                </td>
+                <td>
+                  <div style="display:flex; gap:0.35rem;">
+                    <button class="btn btn-sm btn-secondary" onclick="adminPanel.openPaymentMethodModal('${pm.id}')" title="সম্পাদনা"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm ${pm.active ? 'btn-gold' : 'btn-primary'}" onclick="adminPanel.togglePaymentActive('${pm.id}')" title="সক্রিয়/নিষ্ক্রিয়">
+                      <i class="fas ${pm.active ? 'fa-eye-slash' : 'fa-check'}"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary" style="background:#dc2626; color:#fff; border:none;" onclick="adminPanel.confirmDeletePayment('${pm.id}')" title="ডিলিট"><i class="fas fa-trash-alt"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  openPaymentMethodModal(pmId = null) {
+    const list = db.getPaymentMethods();
+    const pm = list.find(item => item.id === pmId) || {};
+
+    const html = `
+      <form id="payment-method-form" onsubmit="adminPanel.handleSavePaymentMethod(event, '${pm.id || ''}')">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label" style="font-weight:600;">মাধ্যমের নাম (Name)</label>
+          <input type="text" id="pm-name-input" class="form-control" value="${pm.name || ''}" placeholder="যেমন: bKash (বিকাশ) Merchant" required>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label class="form-label" style="font-weight:600;">টাইপ (Type)</label>
+            <select id="pm-type-input" class="form-control">
+              <option value="bKash" ${pm.type === 'bKash' ? 'selected' : ''}>bKash</option>
+              <option value="Nagad" ${pm.type === 'Nagad' ? 'selected' : ''}>Nagad</option>
+              <option value="Rocket" ${pm.type === 'Rocket' ? 'selected' : ''}>Rocket</option>
+              <option value="Bank" ${pm.type === 'Bank' ? 'selected' : ''}>Bank Transfer</option>
+              <option value="Cash" ${pm.type === 'Cash' ? 'selected' : ''}>Cash</option>
+              <option value="Other" ${pm.type === 'Other' ? 'selected' : ''}>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="font-weight:600;">অফিশিয়াল নম্বর / একাউন্ট নম্বর (Number)</label>
+            <input type="text" id="pm-number-input" class="form-control" value="${pm.number || ''}" placeholder="যেমন: 017XXXXXXXX / 205036...">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label class="form-label">একাউন্ট হোল্ডারের নাম (Account Holder)</label>
+            <input type="text" id="pm-holder-input" class="form-control" value="${pm.accountName || 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন'}" placeholder="একাউন্ট হোল্ডারের নাম">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ব্যাংকের নাম (যদি থাকে)</label>
+            <input type="text" id="pm-bank-input" class="form-control" value="${pm.bankName || ''}" placeholder="যেমন: ইসলামী ব্যাংক লিমিটেড">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label class="form-label">শাখা (Branch)</label>
+            <input type="text" id="pm-branch-input" class="form-control" value="${pm.branch || ''}" placeholder="যেমন: রৌমারী শাখা">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ডিসপ্লে অর্ডার (ক্রম)</label>
+            <input type="number" id="pm-order-input" class="form-control" value="${pm.displayOrder || 1}" min="1">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:1.25rem;">
+          <label class="form-label">নির্দেশনা (Instructions for Donor)</label>
+          <textarea id="pm-instructions-input" class="form-control" rows="2" placeholder="দাতাদের সহায়তার জন্য সংক্ষিপ্ত পেমেন্ট নির্দেশনা...">${pm.instructions || ''}</textarea>
+        </div>
+
+        <div style="display:flex; gap:1.5rem; margin-bottom:1.5rem; background:var(--bg-warm); padding:0.85rem; border-radius:var(--radius-sm);">
+          <label class="checkbox-group">
+            <input type="checkbox" id="pm-active-check" ${pm.active !== false ? 'checked' : ''}>
+            <span style="font-weight:600; color:var(--primary-deep);">সক্রিয় স্ট্যাটাস (Active)</span>
+          </label>
+          <label class="checkbox-group">
+            <input type="checkbox" id="pm-public-check" ${pm.publicVisible !== false ? 'checked' : ''}>
+            <span style="font-weight:600; color:var(--primary-deep);">পাবলিক ওয়েবসাইটে দেখান (Public Display)</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-save"></i> সংরক্ষণ করুন (Save Payment Method)</button>
+      </form>
+    `;
+    openModal(pmId ? 'পেমেন্ট মাধ্যম সম্পাদনা' : 'নতুন পেমেন্ট মাধ্যম যোগ', html);
+  }
+
+  handleSavePaymentMethod(e, pmId) {
+    e.preventDefault();
+    const pmData = {
+      id: pmId || `pm_${Date.now()}`,
+      name: document.getElementById('pm-name-input').value.trim(),
+      type: document.getElementById('pm-type-input').value,
+      number: document.getElementById('pm-number-input').value.trim(),
+      accountName: document.getElementById('pm-holder-input').value.trim(),
+      bankName: document.getElementById('pm-bank-input').value.trim(),
+      branch: document.getElementById('pm-branch-input').value.trim(),
+      displayOrder: Number(document.getElementById('pm-order-input').value) || 1,
+      instructions: document.getElementById('pm-instructions-input').value.trim(),
+      active: document.getElementById('pm-active-check').checked,
+      publicVisible: document.getElementById('pm-public-check').checked
+    };
+
+    db.savePaymentMethod(pmData);
+    closeModal();
+    showToast('পেমেন্ট মাধ্যম সফলভাবে আপডেট করা হয়েছে!', 'success');
+    this.showTab('payment-manage');
+  }
+
+  togglePaymentActive(pmId) {
+    const list = db.getPaymentMethods();
+    const pm = list.find(item => item.id === pmId);
+    if (pm) {
+      pm.active = !pm.active;
+      db.savePaymentMethod(pm);
+      showToast(`'${pm.name}' স্ট্যাটাস পরিবর্তন হয়েছে!`, 'info');
+      this.showTab('payment-manage');
+    }
+  }
+
+  confirmDeletePayment(pmId) {
+    if (confirm('আপনি কি এই পেমেন্ট মাধ্যমটি মুছে ফেলতে চান?')) {
+      db.deletePaymentMethod(pmId);
+      showToast('পেমেন্ট মাধ্যম অপসারিত হয়েছে।', 'success');
+      this.showTab('payment-manage');
+    }
+  }
+
+  // ==========================================
+  // SHARE & OUTREACH MESSAGING COMPOSER
+  // ==========================================
+  renderShareOutreachManager(container) {
+    const templates = db.getShareTemplates();
+    const activePayments = db.getPaymentMethods(true);
+    const foundation = db.getFoundationSettings();
+    const shareHistory = db.getShareHistory();
+
+    const websiteUrl = foundation.websiteUrl || window.location.origin;
+
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h3 style="font-size:1.35rem; font-weight:700; color:var(--primary-deep);"><i class="fas fa-paper-plane" style="color:#25D366; margin-right:8px;"></i> সহায়তার বার্তা ও প্রচার কেন্দ্র (Share & Outreach)</h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:2px;">মানবিক আবেদন বার্তা তৈরি করুন এবং হোয়াটসঅ্যাপ, মেসেঞ্জার, টেলিগ্রাম ও ফেসবুকে সরাসরি শেয়ার করুন</p>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:2rem;">
+        <!-- Left: Composer -->
+        <div style="background:#fff; padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--border-color); box-shadow:var(--shadow-sm);">
+          <h4 style="font-size:1.1rem; color:var(--primary-deep); font-weight:700; margin-bottom:1rem;"><i class="fas fa-edit"></i> আউটরিচ মেসেজ কম্পোজার</h4>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">টেমপ্লেট নির্বাচন করুন</label>
+            <select id="outreach-tpl-select" class="form-control" onchange="adminPanel.loadOutreachTemplate(this.value)">
+              <option value="custom">কাস্টম মেসেজ (নিজের মতো লিখুন)</option>
+              ${templates.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">ফান্ড / ক্যাম্পেইনের নাম</label>
+            <input type="text" id="outreach-fund-input" class="form-control" value="সাধারণ মানবিক ফান্ড" oninput="adminPanel.updateOutreachPreview()">
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">আবেদনের মূল মেসেজ (Message Text)</label>
+            <textarea id="outreach-msg-input" class="form-control" rows="8" style="line-height:1.7;" oninput="adminPanel.updateOutreachPreview()">❤️ ${foundation.nameBn || 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন'}-এর মানবিক কার্যক্রমে আপনার সহযোগিতা প্রয়োজন।
+
+আপনার সামান্য সহযোগিতায় একজন অসহায় মানুষের মুখে খাবার ও চিকিৎসাসেবা পৌঁছে যেতে পারে।
+
+ফান্ড: খাদ্য ও মানবিক ফান্ড
+ওয়েবসাইট: ${websiteUrl}
+যোগাযোগ: ${foundation.phone || '01400844602'}</textarea>
+          </div>
+
+          <div style="background:var(--bg-warm); padding:0.85rem; border-radius:var(--radius-sm); font-size:0.82rem; color:var(--text-muted); margin-bottom:1.25rem;">
+            <strong>প্লেসহোল্ডার ব্যবহারযোগ্য:</strong> {{foundation_name}}, {{fund_name}}, {{payment_information}}, {{campaign_url}}, {{contact_information}}
+          </div>
+        </div>
+
+        <!-- Right: Live Preview & Action Buttons -->
+        <div style="background:#fff; padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--border-color); box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <h4 style="font-size:1.1rem; color:var(--primary-deep); font-weight:700; margin-bottom:1rem;"><i class="fas fa-eye"></i> লাইভ বার্তা প্রিভিউ (Live Preview)</h4>
+
+            <div id="outreach-live-preview" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:var(--radius-md); padding:1.25rem; font-size:0.95rem; line-height:1.7; color:var(--primary-deep); white-space:pre-wrap; min-height:200px; margin-bottom:1.5rem;">
+              <!-- Live preview updates here -->
+            </div>
+          </div>
+
+          <div>
+            <h5 style="font-size:0.95rem; font-weight:700; color:var(--primary-deep); margin-bottom:0.75rem;"><i class="fas fa-share-alt"></i> সোশ্যাল প্ল্যাটফর্মে শেয়ার করুন</h5>
+            
+            <div class="share-options-grid">
+              <div class="share-btn-item whatsapp" onclick="adminPanel.triggerOutreachShare('whatsapp')">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+              </div>
+              <div class="share-btn-item messenger" onclick="adminPanel.triggerOutreachShare('messenger')">
+                <i class="fab fa-facebook-messenger"></i> Messenger
+              </div>
+              <div class="share-btn-item telegram" onclick="adminPanel.triggerOutreachShare('telegram')">
+                <i class="fab fa-telegram-plane"></i> Telegram
+              </div>
+              <div class="share-btn-item facebook" onclick="adminPanel.triggerOutreachShare('facebook')">
+                <i class="fab fa-facebook-f"></i> Facebook
+              </div>
+              <div class="share-btn-item sms" onclick="adminPanel.triggerOutreachShare('sms')">
+                <i class="fas fa-sms"></i> SMS
+              </div>
+              <div class="share-btn-item email" onclick="adminPanel.triggerOutreachShare('email')">
+                <i class="fas fa-envelope"></i> Email
+              </div>
+              <div class="share-btn-item copy" onclick="adminPanel.triggerOutreachShare('copy')" style="grid-column: 1 / -1; flex-direction:row; gap:0.5rem;">
+                <i class="fas fa-copy"></i> বার্তা কপি করুন (Copy Message)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share History Table -->
+      <div style="background:#fff; border-radius:var(--radius-lg); border:1px solid var(--border-color); padding:1.5rem; box-shadow:var(--shadow-sm);">
+        <h4 style="font-size:1.1rem; color:var(--primary-deep); font-weight:700; margin-bottom:1rem;"><i class="fas fa-history"></i> শেয়ার হিস্ট্রি (Share History Log)</h4>
+        ${shareHistory.length === 0 ? '<p style="color:var(--text-muted); font-size:0.88rem;">এখনও কোনো আউটরিচ শেয়ার করা হয়নি।</p>' : `
+          <div class="table-responsive">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>তারিখ ও সময়</th>
+                  <th>প্ল্যাটফর্ম</th>
+                  <th>ক্যাম্পেইন বিবরণ</th>
+                  <th>লিংক</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${shareHistory.map(sh => `
+                  <tr>
+                    <td>${sh.date}</td>
+                    <td><span class="badge badge-verified">${sh.platform}</span></td>
+                    <td>${sh.contentSummary}</td>
+                    <td><a href="${sh.campaignUrl}" target="_blank" style="font-size:0.82rem; color:var(--primary-accent);"><i class="fas fa-external-link-alt"></i> লিঙ্ক দেখুন</a></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `}
+      </div>
+    `;
+
+    setTimeout(() => {
+      adminPanel.updateOutreachPreview();
+    }, 50);
+  }
+
+  loadOutreachTemplate(tplId) {
+    if (tplId === 'custom') return;
+    const templates = db.getShareTemplates();
+    const tpl = templates.find(t => t.id === tplId);
+    if (tpl) {
+      const msgInput = document.getElementById('outreach-msg-input');
+      if (msgInput) msgInput.value = tpl.text;
+      this.updateOutreachPreview();
+    }
+  }
+
+  updateOutreachPreview() {
+    const msgInput = document.getElementById('outreach-msg-input');
+    const fundInput = document.getElementById('outreach-fund-input');
+    const previewEl = document.getElementById('outreach-live-preview');
+    if (!msgInput || !previewEl) return;
+
+    const foundation = db.getFoundationSettings();
+    const activePayments = db.getPaymentMethods(true);
+
+    const paymentText = activePayments.length > 0 ? activePayments.map(pm => `${pm.name}: ${pm.number || 'যোগাযোগ করুন'}`).join('\n') : 'বিকাশ/নগদ: শীঘ্রই আপডেট হচ্ছে';
+    const websiteUrl = foundation.websiteUrl || window.location.origin;
+    const fundName = fundInput ? fundInput.value : 'সাধারণ মানবিক ফান্ড';
+
+    let text = msgInput.value;
+    text = text.replace(/{{foundation_name}}/g, foundation.nameBn || 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন');
+    text = text.replace(/{{fund_name}}/g, fundName);
+    text = text.replace(/{{payment_information}}/g, paymentText);
+    text = text.replace(/{{campaign_url}}/g, `${websiteUrl}?campaign=outreach`);
+    text = text.replace(/{{contact_information}}/g, foundation.phone || '01400844602');
+
+    previewEl.innerText = text;
+  }
+
+  triggerOutreachShare(platform) {
+    const previewEl = document.getElementById('outreach-live-preview');
+    if (!previewEl) return;
+    const message = previewEl.innerText;
+    const foundation = db.getFoundationSettings();
+    const url = `${foundation.websiteUrl || window.location.origin}?campaign=outreach`;
+
+    if (platform === 'copy') {
+      copyToClipboard(message, 'মেসেজ');
+      db.addShareHistory({ platform: 'Copy', type: 'Outreach', summary: message.substring(0, 40), url });
+      return;
+    }
+
+    shareToPlatform(platform, url, foundation.nameBn || 'এক মুঠো খাবার ফাউন্ডেশন', message);
+  }
+
+  // ==========================================
+  // FOUNDATION & PRIVACY SETTINGS MANAGER
+  // ==========================================
+  renderFoundationSettingsManager(container) {
+    const settings = db.getFoundationSettings();
+    const privacy = db.getPrivacySettings();
+
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <h3 style="font-size:1.35rem; font-weight:700; color:var(--primary-deep);"><i class="fas fa-cog" style="color:var(--primary-accent); margin-right:8px;"></i> ফাউন্ডেশন & প্রাইভেসি সেটিংস (Foundation Settings)</h3>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-top:2px;">ফাউন্ডেশনের মূল যোগাযোগের তথ্য, সোশ্যাল লিঙ্ক এবং গোপনীয়তা নীতি কনফিগার করুন</p>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+        <!-- Left: General Foundation Details -->
+        <div style="background:#fff; padding:1.75rem; border-radius:var(--radius-lg); border:1px solid var(--border-color); box-shadow:var(--shadow-sm);">
+          <h4 style="font-size:1.15rem; color:var(--primary-deep); font-weight:700; margin-bottom:1.25rem; border-bottom:2px solid var(--bg-light); padding-bottom:0.5rem;">
+            <i class="fas fa-building" style="color:var(--accent-gold);"></i> অফিশিয়াল ফাউন্ডেশন তথ্য
+          </h4>
+
+          <form onsubmit="adminPanel.handleSaveFoundationSettings(event)">
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label class="form-label" style="font-weight:600;">ফাউন্ডেশনের নাম (বাংলা)</label>
+              <input type="text" id="set-name-bn" class="form-control" value="${settings.nameBn || ''}" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label class="form-label" style="font-weight:600;">ফাউন্ডেশনের নাম (ইংরেজি)</label>
+              <input type="text" id="set-name-en" class="form-control" value="${settings.nameEn || ''}" required>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group">
+                <label class="form-label">হটলাইন ফোন</label>
+                <input type="text" id="set-phone" class="form-control" value="${settings.phone || ''}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">হোয়াটসঅ্যাপ নম্বর</label>
+                <input type="text" id="set-whatsapp" class="form-control" value="${settings.whatsapp || ''}">
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div class="form-group">
+                <label class="form-label">অফিশিয়াল ইমেইল</label>
+                <input type="email" id="set-email" class="form-control" value="${settings.email || ''}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">ওয়েবসাইট URL</label>
+                <input type="url" id="set-website" class="form-control" value="${settings.websiteUrl || ''}">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1.25rem;">
+              <label class="form-label">কার্যালয়ের ঠিকানা</label>
+              <input type="text" id="set-address" class="form-control" value="${settings.address || ''}">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-save"></i> ফাউন্ডেশন তথ্য সংরক্ষণ করুন</button>
+          </form>
+        </div>
+
+        <!-- Right: Privacy & Security Settings -->
+        <div style="background:#fff; padding:1.75rem; border-radius:var(--radius-lg); border:1px solid var(--border-color); box-shadow:var(--shadow-sm);">
+          <h4 style="font-size:1.15rem; color:var(--primary-deep); font-weight:700; margin-bottom:1.25rem; border-bottom:2px solid var(--bg-light); padding-bottom:0.5rem;">
+            <i class="fas fa-user-shield" style="color:var(--primary-accent);"></i> গোপনীয়তা & পাবলিক ভিজিবিলিটি সেটিংস
+          </h4>
+
+          <form onsubmit="adminPanel.handleSavePrivacySettings(event)">
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label class="form-label" style="font-weight:600;">পাবলিক সদস্য নাম প্রদর্শন নীতি</label>
+              <select id="priv-member-rec" class="form-control">
+                <option value="name_only" ${privacy.publicMemberRecognition === 'name_only' ? 'selected' : ''}>কেবল নাম ও জেলা দেখান (ফোন লুকানো)</option>
+                <option value="name_and_type" ${privacy.publicMemberRecognition === 'name_and_type' ? 'selected' : ''}>নাম ও সদস্য টাইপ দেখান</option>
+                <option value="count_only" ${privacy.publicMemberRecognition === 'count_only' ? 'selected' : ''}>কেবল মোট সদস্য সংখ্যা দেখান</option>
+                <option value="hidden" ${privacy.publicMemberRecognition === 'hidden' ? 'selected' : ''}>সম্পূর্ণ গোপন রাখুন</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1rem;">
+              <label class="form-label" style="font-weight:600;">গোপনীয়তা সহায়তার ফোন নম্বর</label>
+              <input type="text" id="priv-contact" class="form-control" value="${privacy.privacyContact || '01400844602'}">
+            </div>
+
+            <div style="background:var(--bg-warm); padding:1rem; border-radius:var(--radius-sm); margin-bottom:1.25rem; display:flex; flex-direction:column; gap:0.75rem;">
+              <label class="checkbox-group">
+                <input type="checkbox" id="priv-show-donor-name" ${privacy.showDonorName !== false ? 'checked' : ''}>
+                <span style="font-size:0.9rem; font-weight:600; color:var(--primary-deep);">পাবলিক রসিদে দাতার নাম দেখান (যদি বেনামী না হয়)</span>
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" id="priv-show-amount" ${privacy.showDonationAmount ? 'checked' : ''}>
+                <span style="font-size:0.9rem; font-weight:600; color:var(--primary-deep);">পাবলিক ডিরেক্টরিতে অনুদান পরিমাণ দেখান</span>
+              </label>
+              <label class="checkbox-group">
+                <input type="checkbox" id="priv-show-count" ${privacy.showMemberCount !== false ? 'checked' : ''}>
+                <span style="font-size:0.9rem; font-weight:600; color:var(--primary-deep);">হোমপেজে সদস্য সংখ্যা দেখান</span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%;"><i class="fas fa-save"></i> প্রাইভেসি সেটিংস সংরক্ষণ করুন</button>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  handleSaveFoundationSettings(e) {
+    e.preventDefault();
+    const settings = {
+      nameBn: document.getElementById('set-name-bn').value.trim(),
+      nameEn: document.getElementById('set-name-en').value.trim(),
+      phone: document.getElementById('set-phone').value.trim(),
+      whatsapp: document.getElementById('set-whatsapp').value.trim(),
+      email: document.getElementById('set-email').value.trim(),
+      websiteUrl: document.getElementById('set-website').value.trim(),
+      address: document.getElementById('set-address').value.trim()
+    };
+
+    db.saveFoundationSettings(settings);
+    showToast('ফাউন্ডেশন তথ্য সফলভাবে সংরক্ষণ করা হয়েছে!', 'success');
+  }
+
+  handleSavePrivacySettings(e) {
+    e.preventDefault();
+    const privacy = {
+      publicMemberRecognition: document.getElementById('priv-member-rec').value,
+      privacyContact: document.getElementById('priv-contact').value.trim(),
+      showDonorName: document.getElementById('priv-show-donor-name').checked,
+      showDonationAmount: document.getElementById('priv-show-amount').checked,
+      showMemberCount: document.getElementById('priv-show-count').checked
+    };
+
+    db.savePrivacySettings(privacy);
+    showToast('গোপনীয়তা সেটিংস সফলভাবে আপডেট করা হয়েছে!', 'success');
+  }
+
+  // ==========================================
+  // MEMBERSHIP MANUAL REMINDER MODAL
+  // ==========================================
+  openMemberReminderModal(memberId) {
+    const member = (db.data.members || []).find(m => m.id === memberId);
+    if (!member) return;
+
+    const foundation = db.getFoundationSettings();
+    const activePayments = db.getPaymentMethods(true);
+    const paymentInfo = activePayments.map(pm => `${pm.name}: ${pm.number || 'যোগাযোগ করুন'}`).join('\n');
+
+    const message = `প্রিয় ${member.name},\n\nআপনার ${member.typeLabelBn || member.type} সদস্যতার পরবর্তী অনুদানের সময় হয়েছে।\n\nঅনুদানের পরিমাণ:\n৳${Number(member.amount).toLocaleString()}\n\nসহযোগিতার জন্য:\n${paymentInfo}\n\nধন্যবাদ।\n${foundation.nameBn || 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন'}`;
+
+    const html = `
+      <div style="font-size:0.95rem; line-height:1.7;">
+        <h4 style="color:var(--primary-deep); font-weight:700; margin-bottom:0.75rem;">সদস্যদের ম্যানুয়াল অনুদান রিমাইন্ডার মেসেজ</h4>
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:1.25rem; border-radius:var(--radius-md); font-family:monospace; white-space:pre-wrap; margin-bottom:1.25rem; font-size:0.92rem; color:var(--primary-deep);">
+          ${message}
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          ${member.whatsapp || member.phone ? `
+            <a href="https://wa.me/88${(member.whatsapp || member.phone).replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}" target="_blank" class="btn btn-primary" style="background:#25D366; border-color:#25D366; justify-content:center;">
+              <i class="fab fa-whatsapp"></i> WhatsApp-এ পাঠান
+            </a>
+          ` : ''}
+          <button class="btn btn-secondary" onclick="copyToClipboard(\`${message.replace(/`/g, '\\`')}\`, 'মেসেজ')">
+            <i class="fas fa-copy"></i> মেসেজ কপি করুন
+          </button>
+        </div>
+      </div>
+    `;
+    openModal('সদস্য রিমাইন্ডার', html);
   }
 
 }

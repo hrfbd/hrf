@@ -7,7 +7,246 @@ const DB_KEY = 'emkf_database_v11';
 // Initial Seed Data
 const defaultDatabase = {
   openingBalance: 0,
-  
+  pledgeResponses: [],
+
+  paymentMethods: [
+    {
+      id: 'pm_bkash_p1',
+      name: 'bKash Personal (বিকাশ পার্সোনাল ১)',
+      type: 'bKash',
+      number: '01306406917',
+      accountName: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন',
+      bankName: '',
+      branch: '',
+      accountType: 'Personal',
+      instructions: 'বিকাশ পার্সোনাল নম্বর: 01306406917 (সেন্ড মানি করুন)',
+      displayOrder: 1,
+      active: true,
+      publicVisible: true
+    },
+    {
+      id: 'pm_bkash_p2',
+      name: 'bKash Personal (বিকাশ পার্সোনাল ২)',
+      type: 'bKash',
+      number: '01936758675',
+      accountName: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন',
+      bankName: '',
+      branch: '',
+      accountType: 'Personal',
+      instructions: 'বিকাশ পার্সোনাল নম্বর: 01936758675 (সেন্ড মানি করুন)',
+      displayOrder: 2,
+      active: true,
+      publicVisible: true
+    },
+    {
+      id: 'pm_bkash_pay',
+      name: 'bKash Payment (বিকাশ মার্চেন্ট/পেমেন্ট)',
+      type: 'bKash',
+      number: '01400844602',
+      accountName: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন',
+      bankName: '',
+      branch: '',
+      accountType: 'Merchant / Payment',
+      instructions: 'বিকাশ পেমেন্ট নম্বর: 01400844602 (মেক পেমেন্ট করুন)',
+      displayOrder: 3,
+      active: true,
+      publicVisible: true
+    },
+    {
+      id: 'pm_nagad_p',
+      name: 'Nagad Personal (নগদ পার্সোনাল)',
+      type: 'Nagad',
+      number: '01832630299',
+      accountName: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন',
+      bankName: '',
+      branch: '',
+      accountType: 'Personal',
+      instructions: 'নগদ পার্সোনাল নম্বর: 01832630299 (সেন্ড মানি করুন)',
+      displayOrder: 4,
+      active: true,
+      publicVisible: true
+    },
+    {
+      id: 'pm_nagad_agent',
+      name: 'Nagad Agent (নগদ এজেন্ট)',
+      type: 'Nagad',
+      number: '01718706270',
+      accountName: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন',
+      bankName: '',
+      branch: '',
+      accountType: 'Agent',
+      instructions: 'নগদ এজেন্ট নম্বর: 01718706270 (ক্যাশ আউট / এজেন্ট পে করুন)',
+      displayOrder: 5,
+      active: true,
+      publicVisible: true
+    },
+    {
+      id: 'pm_rocket',
+      name: 'Rocket Account (রকেট অ্যাকাউন্ট)',
+      type: 'Rocket',
+      number: '01966721699-0',
+      accountName: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন',
+      bankName: '',
+      branch: '',
+      accountType: 'Personal',
+      instructions: 'রকেট নম্বর: 01966721699-0 (সেন্ড মানি / ট্রান্সফার করুন)',
+      displayOrder: 6,
+      active: true,
+      publicVisible: true
+    },
+    {
+      id: 'pm_bank',
+      name: 'Bank Transfer (ব্যাংক হিসাব)',
+      type: 'Bank',
+      number: 'আপাতত খোলা নেই',
+      accountName: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন',
+      bankName: 'ব্যাংক হিসাব',
+      branch: '',
+      accountType: 'চলতি হিসাব',
+      instructions: 'আপাতত ব্যাংক হিসাব সেবা বন্ধ রয়েছে। অনুগ্রহ করে বিকাশ, নগদ বা রকেট নম্বর ব্যবহার করুন।',
+      displayOrder: 7,
+      active: false,
+      publicVisible: false
+    },
+    {
+      id: 'pm_cash',
+      name: 'Cash / সরাসরি নগদ জমা',
+      type: 'Cash',
+      number: 'অফিসে সরাসরি জমা',
+      accountName: 'কেন্দ্রীয় কার্যালয়',
+      bankName: '',
+      branch: '',
+      accountType: 'নগদ',
+      instructions: 'ফাউন্ডেশনের অফিসে সরাসরি এসে রশিদ গ্রহণ সাপেক্ষে অনুদান প্রদান করুন।',
+      displayOrder: 8,
+      active: true,
+      publicVisible: true
+    }
+  ],
+
+  membershipCategories: [
+    {
+      id: 'monthly',
+      nameBn: 'মাসিক সদস্য',
+      nameEn: 'Monthly Member',
+      frequency: 'Monthly',
+      frequencyBn: 'প্রতি ১ মাসে ১ বার',
+      amount: 0,
+      description: 'প্রতি মাসে নিয়মিত নির্দিষ্ট পরিমাণ অর্থ অনুদান দিয়ে ফাউন্ডেশনের নিয়মিত মানবিক কাজে অংশ নেন।',
+      active: true,
+      publicVisible: true,
+      displayOrder: 1
+    },
+    {
+      id: 'quarterly',
+      nameBn: 'ত্রৈমাসিক সদস্য',
+      nameEn: 'Quarterly Member (3-Month)',
+      frequency: 'Quarterly',
+      frequencyBn: 'প্রতি ৩ মাসে ১ বার',
+      amount: 0,
+      description: 'প্রতি ৩ মাস পর পর ১ বার অনুদান জমা দিয়ে মানবিক প্রকল্পে সহায়তা করেন।',
+      active: true,
+      publicVisible: true,
+      displayOrder: 2
+    },
+    {
+      id: 'half_yearly',
+      nameBn: 'ষান্মাসিক সদস্য',
+      nameEn: 'Half-Yearly Member (6-Month)',
+      frequency: 'Half-Yearly',
+      frequencyBn: 'প্রতি ৬ মাসে ১ বার',
+      amount: 0,
+      description: 'বছরে ২ বার (প্রতি ৬ মাসে ১ বার) অনুদান প্রদানকারী সম্মানিত সদস্য।',
+      active: true,
+      publicVisible: true,
+      displayOrder: 3
+    },
+    {
+      id: 'yearly',
+      nameBn: 'বার্ষিক সদস্য',
+      nameEn: 'Yearly Member (12-Month)',
+      frequency: 'Yearly',
+      frequencyBn: 'প্রতি ১২ মাসে ১ বার (বার্ষিক)',
+      amount: 0,
+      description: 'বছরে ১ বার এককালীন বার্ষিক অনুদান দিয়ে ফাউন্ডেশনের সার্বিক উন্নয়নে ভূমিকা রাখেন।',
+      active: true,
+      publicVisible: true,
+      displayOrder: 4
+    },
+    {
+      id: 'lifetime',
+      nameBn: 'আজীবন / এককালীন সদস্য',
+      nameEn: 'Lifetime / One-time Member',
+      frequency: 'Lifetime',
+      frequencyBn: 'জীবনে একবার (এককালীন)',
+      amount: 0,
+      description: 'এককালীন অনুদান প্রদান করে ফাউন্ডেশনের আজীবন সম্মানিত দাতা বা সদস্য পদ লাভ করেন।',
+      active: true,
+      publicVisible: true,
+      displayOrder: 5
+    }
+  ],
+
+  foundationSettings: {
+    nameBn: 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন',
+    nameEn: 'A Handful of Food and Rehabilitation Foundation (HRF)',
+    shortName: 'HRF',
+    tagline: 'মানুষের পাশে, মানবতার জন্য',
+    logo: 'img/logo.jpg',
+    websiteUrl: 'https://ekmuthokhabar.org',
+    phone: '01832630299',
+    whatsapp: '01621314787',
+    email: 'info@ekmuthokhabar.org',
+    address: 'নটানপাড়া, রৌমারী বাজার, কুড়িগ্রাম, বাংলাদেশ',
+    facebook: 'https://facebook.com/ekmuthokhabar.org',
+    messenger: 'https://m.me/ekmuthokhabar.org',
+    telegram: 'https://t.me/ekmuthokhabar',
+    youtube: '',
+    instagram: '',
+    twitter: '',
+    linkedin: ''
+  },
+
+  privacySettings: {
+    publicMemberRecognition: 'name_only',
+    publicDonorRecognition: 'name_only',
+    showDonorName: true,
+    showDonationAmount: false,
+    showMemberCount: true,
+    privacyPolicyUrl: '#view-privacy',
+    privacyContact: '01832630299'
+  },
+
+  shareTemplates: [
+    {
+      id: 'gen_appeal',
+      name: 'সাধারণ মানবিক অনুদানের কাতর আবেদন',
+      text: `🌸 {{foundation_name}} 🌸\n"মানুষ মানুষের জন্য, জীবন জীবনের জন্য"\n\nপ্রিয় সুহৃদ,\nআপনার ছোট্ট এক ফোঁটা সহানুভূতি হয়তো কোনো পথশিশুর মুখে এক চিলতে হাসি ফুটিয়ে তুলতে পারে, কিংবা কোনো অসহায় অসুস্থ মানুষের জীবনের নতুন প্রদীপ জ্বালাতে পারে।\n\nফান্ড: {{fund_name}}\n\nদয়া করে সহায়তার হাত বাড়িয়ে দিন... ❤️\n\nঅনুদানের বিকাশ/নগদ/রকেট নম্বরসমূহ:\n{{payment_information}}\n\nহটলাইন/যোগাযোগ: {{contact_information}}\nহোয়াটসঅ্যাপ: 01621314787\nওয়েবসাইট: {{campaign_url}}\n\nআপনাকে অশেষ ধন্যবাদ ও পরম কৃতজ্ঞতা।`
+    },
+    {
+      id: 'food_dist',
+      name: 'খাবার বিতরণ সহায়তা (আবেগঘন আবেদন)',
+      text: `🍚 "আজ রাতে কি কোনো শিশু না খেয়ে থাকবে?" — এক মুঠো খাবার আবেদন 😭\n\nসুহৃদ,\nক্ষুধার তীব্র যন্ত্রণা যে কতটা মর্মান্তিক, তা কেবল সেই অভুক্ত পথশিশু বা অসহায় বৃদ্ধই অনুভব করেন। রাতের আঁধারে শহরের ফুটপাতে শত শত মানুষ এক মুঠো খাবারের আশায় প্রহর গোনে।\n\nআপনার সামান্য ৫০ বা ১০০ টাকার অনুদানেও একজন ক্ষুধার্ত মানুষের পেটে গরম খাবার পৌঁছাবে। আসুন অনাহারের বিরুদ্ধে আমরা একসাথে লড়াই করি।\n\nসহযোগিতা পাঠানোর ঠিকানা:\n{{payment_information}}\n\nহটলাইন: {{contact_information}} | হোয়াটসঅ্যাপ: 01621314787\nওয়েবসাইট: {{campaign_url}}`
+    },
+    {
+      id: 'medical_supp',
+      name: 'চিকিৎসা সহায়তা (জীবন বাঁচানোর আকুল আবেদন)',
+      text: `🩺 "একটি জীবন বাঁচুক আপনার ভালোবাসায়" — জরুরি চিকিৎসা তহবিল 💔\n\nসুহৃদ,\nঅর্থাভাবে বিনা চিকিৎসায় তিলে তিলে ছটফট করে মরছে অসহায় এক মানুষ। প্রয়োজনীয় ওষুধ কিংবা অপারেশনের টাকা জোগাড় করা তার পরিবারের পক্ষে সম্ভব নয়। একটুখানি ভালোবাসার আলো পেলেই সে ফিরে পাবে নতুন জীবন।\n\nআসুন, অর্থাভাবে কাউকে ঝরে পড়তে না দিই।\n\nচিকিৎসা তহবিলে অনুদানের মাধ্যম:\n{{payment_information}}\n\nজরুরি হটলাইন: {{contact_information}} | হোয়াটসঅ্যাপ: 01621314787\nওয়েবসাইট: {{campaign_url}}`
+    },
+    {
+      id: 'education_supp',
+      name: 'শিক্ষা সহায়তা (সুবিধাবঞ্চিত শিশু)',
+      text: `📚 "ঝরে পড়ার আগেই ধরুন ওদের হাত" — শিশু শিক্ষা তহবিল 👧👦\n\nপ্রিয় সুহৃদ,\nপথশিশুদের হাতে যেখানে বই-খাতা থাকার কথা ছিল, সেখানে তারা আজ পেটের দায়ে ময়লা কুড়াচ্ছে। টাকার অভাবে যাতে কোনো শিশুর পড়াশোনা বন্ধ হয়ে না যায়, সেজন্য আমরা কাজ করছি।\n\nআপনার দান একটি শিশুর অন্ধকার ভবিষ্যৎকে আলোকিত করতে পারে।\n\nঅনুদানের মাধ্যম:\n{{payment_information}}\n\nযোগাযোগ হটলাইন: {{contact_information}} | হোয়াটসঅ্যাপ: 01621314787\nওয়েবসাইট: {{campaign_url}}`
+    },
+    {
+      id: 'old_age_care',
+      name: 'প্রবীণ সেবা ও বৃদ্ধাশ্রম প্রকল্প',
+      text: `🏠 "বৃদ্ধ বয়সে মাথার উপর এক টুকরো ছাদ" — প্রবীণ সেবা ও বৃদ্ধাশ্রম প্রজেক্ট 👵👴\n\nযে মা-বাবা সন্তানকে বুকে আগলে বড় করেছিলেন, জীবনের শেষ বিকেলে তারা আজ নিরাশ্রয়, অবহেলিত ও একাকী। ১০০ জন বৃদ্ধ বাবা-মাকে বিনামূল্যে বাসস্থান, ওষুধ ও খাবার দিতে গড়ে উঠছে আমাদের বৃদ্ধাশ্রম।\n\nআসুন, এই প্রবীণ সেবায় আপনার পরম ভালোবাসার হাত বাড়িয়ে দিন।\n\nঅনুদানের জন্য বিকাশ/নগদ/রকেট:\n{{payment_information}}\n\nহটলাইন: {{contact_information}} | হোয়াটসঅ্যাপ: 01621314787\nওয়েবসাইট: {{campaign_url}}`
+    }
+  ],
+
+  shareHistory: [],
+
   funds: [
     { id: 'food', nameBn: 'খাদ্য ফান্ড (Food Fund)', nameEn: 'Food Fund', opening: 0 },
     { id: 'housing', nameBn: 'আশ্রয় ও গৃহ নির্মাণ ফান্ড (Shelter & Housing Fund)', nameEn: 'Shelter & Housing Fund', opening: 0 },
@@ -427,7 +666,7 @@ const defaultDatabase = {
     },
     {
       id: 'HRF-021',
-      name: 'মো: মনির হোসেন',
+      name: 'মো: মনিরুজ্জামান মনির',
       phone: '01710005007',
       whatsapp: '01710005007',
       email: '',
@@ -1072,15 +1311,47 @@ class Database {
     if (!parsed.funds || !parsed.funds.some(f => f.id === 'housing')) {
       parsed.funds = JSON.parse(JSON.stringify(defaultDatabase.funds));
     }
-    if (!parsed.members || !Array.isArray(parsed.members) || parsed.members.length === 0 || parsed.members.length > defaultDatabase.members.length) {
+    if (!parsed.paymentMethods || !parsed.paymentMethods.some(pm => pm.number === '01306406917')) {
+      parsed.paymentMethods = JSON.parse(JSON.stringify(defaultDatabase.paymentMethods || []));
+    }
+    if (!parsed.membershipCategories) {
+      parsed.membershipCategories = JSON.parse(JSON.stringify(defaultDatabase.membershipCategories || []));
+    }
+    if (!parsed.foundationSettings || parsed.foundationSettings.phone !== '01832630299') {
+      parsed.foundationSettings = JSON.parse(JSON.stringify(defaultDatabase.foundationSettings || {}));
+    }
+    if (!parsed.privacySettings) {
+      parsed.privacySettings = JSON.parse(JSON.stringify(defaultDatabase.privacySettings || {}));
+    }
+    if (!parsed.shareTemplates || !parsed.shareTemplates.some(st => st.text && st.text.includes('01621314787'))) {
+      parsed.shareTemplates = JSON.parse(JSON.stringify(defaultDatabase.shareTemplates || []));
+    }
+    if (!parsed.shareHistory) {
+      parsed.shareHistory = [];
+    }
+
+    if (!parsed.members || !Array.isArray(parsed.members) || parsed.members.length === 0) {
       parsed.members = JSON.parse(JSON.stringify(defaultDatabase.members));
     } else {
       defaultDatabase.members.forEach(dm => {
-        if (!parsed.members.some(m => m.id === dm.id || m.name === dm.name)) {
-          parsed.members.push(JSON.parse(JSON.stringify(dm)));
+        const existingMember = parsed.members.find(m => m.id === dm.id);
+        if (!existingMember) {
+          const legacyObj = JSON.parse(JSON.stringify(dm));
+          legacyObj.isProtectedLegacy = true;
+          parsed.members.push(legacyObj);
+        } else {
+          existingMember.isProtectedLegacy = true;
         }
       });
     }
+
+    // Flag remaining legacy members
+    parsed.members.forEach(m => {
+      if (m.id && m.id.startsWith('HRF-') && parseInt(m.id.replace('HRF-', '')) <= 46) {
+        m.isProtectedLegacy = true;
+      }
+    });
+
     if (!parsed.customSubmenus) {
       parsed.customSubmenus = {};
     }
@@ -1254,7 +1525,34 @@ class Database {
     return cred.password === password;
   }
 
-  // Real-time Balance Engine Calculation
+  // Asia/Dhaka Timezone Helper Functions
+  getDhakaDateStr(dateObj = new Date()) {
+    try {
+      const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Dhaka',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+      return formatter.format(dateObj); // YYYY-MM-DD
+    } catch(e) {
+      return dateObj.toISOString().split('T')[0];
+    }
+  }
+
+  getDhakaFormattedDateTime(dateObj = new Date()) {
+    try {
+      return new Intl.DateTimeFormat('bn-BD', {
+        timeZone: 'Asia/Dhaka',
+        dateStyle: 'full',
+        timeStyle: 'medium'
+      }).format(dateObj);
+    } catch(e) {
+      return dateObj.toLocaleString('bn-BD');
+    }
+  }
+
+  // Real-time Balance Engine Calculation (Asia/Dhaka Enforced)
   getAccountingSummary() {
     const verifiedDonations = this.data.donations.filter(d => d.status === 'Verified');
     const totalIncome = verifiedDonations.reduce((sum, d) => sum + Number(d.amount), 0);
@@ -1264,8 +1562,8 @@ class Database {
     
     const availableBalance = this.data.openingBalance + totalIncome - totalExpense;
 
-    // Today's Date Calculation (YYYY-MM-DD match)
-    const todayStr = new Date().toISOString().split('T')[0];
+    // Today's Date Calculation in Asia/Dhaka Timezone
+    const todayStr = this.getDhakaDateStr();
     
     const todayDonationsList = verifiedDonations.filter(d => d.date.startsWith(todayStr));
     const todayIncome = todayDonationsList.reduce((sum, d) => sum + Number(d.amount), 0);
@@ -1299,9 +1597,147 @@ class Database {
       todayBalance,
       fundSummaries,
       totalDonorsCount,
+      lastUpdatedFormatted: this.getDhakaFormattedDateTime(),
+      todayStr,
       volunteersCount: Number(this.data.volunteersCount || 0),
       beneficiariesCount: Math.max((this.data.expenses || []).reduce((sum, e) => sum + (Number(e.beneficiariesCount) || 0), 0), Number(this.data.beneficiariesCount || 0))
     };
+  }
+
+  // --- Payment Methods Management ---
+  getPaymentMethods(publicOnly = false) {
+    if (!this.data.paymentMethods) this.data.paymentMethods = defaultDatabase.paymentMethods;
+    let list = [...this.data.paymentMethods];
+    if (publicOnly) {
+      list = list.filter(pm => pm.active && pm.publicVisible);
+    }
+    return list.sort((a, b) => Number(a.displayOrder || 0) - Number(b.displayOrder || 0));
+  }
+
+  savePaymentMethod(pmData) {
+    if (!this.data.paymentMethods) this.data.paymentMethods = [];
+    const idx = this.data.paymentMethods.findIndex(pm => pm.id === pmData.id);
+    if (idx !== -1) {
+      this.data.paymentMethods[idx] = { ...this.data.paymentMethods[idx], ...pmData };
+    } else {
+      const newId = pmData.id || `pm_${Date.now()}`;
+      this.data.paymentMethods.push({ ...pmData, id: newId });
+    }
+    this.logAudit('PAYMENT_METHOD_UPDATE', pmData.id || 'new', '', JSON.stringify(pmData), 'Admin', 'Payment method configured');
+    this.save();
+    return true;
+  }
+
+  deletePaymentMethod(pmId) {
+    if (!this.data.paymentMethods) return false;
+    const idx = this.data.paymentMethods.findIndex(pm => pm.id === pmId);
+    if (idx !== -1) {
+      const removed = this.data.paymentMethods.splice(idx, 1)[0];
+      this.logAudit('PAYMENT_METHOD_DELETE', pmId, removed.name, 'DELETED', 'Admin', 'Payment method removed');
+      this.save();
+      return true;
+    }
+    return false;
+  }
+
+  // --- Membership Categories Configuration ---
+  getMembershipCategories(publicOnly = false) {
+    if (!this.data.membershipCategories) this.data.membershipCategories = defaultDatabase.membershipCategories;
+    let list = [...this.data.membershipCategories];
+    if (publicOnly) {
+      list = list.filter(c => c.active && c.publicVisible);
+    }
+    return list.sort((a, b) => Number(a.displayOrder || 0) - Number(b.displayOrder || 0));
+  }
+
+  saveMembershipCategory(catData) {
+    if (!this.data.membershipCategories) this.data.membershipCategories = [];
+    const idx = this.data.membershipCategories.findIndex(c => c.id === catData.id);
+    if (idx !== -1) {
+      this.data.membershipCategories[idx] = { ...this.data.membershipCategories[idx], ...catData };
+    } else {
+      this.data.membershipCategories.push(catData);
+    }
+    this.logAudit('MEMBERSHIP_CAT_UPDATE', catData.id, '', JSON.stringify(catData), 'Admin', 'Membership category settings updated');
+    this.save();
+    return true;
+  }
+
+  // --- Foundation & Privacy Settings ---
+  getFoundationSettings() {
+    return this.data.foundationSettings || defaultDatabase.foundationSettings;
+  }
+
+  saveFoundationSettings(settingsObj) {
+    this.data.foundationSettings = { ...(this.data.foundationSettings || {}), ...settingsObj };
+    this.logAudit('SETTINGS_UPDATE', 'foundationSettings', '', JSON.stringify(settingsObj), 'Admin', 'Foundation settings updated');
+    this.save();
+    return true;
+  }
+
+  getPrivacySettings() {
+    return this.data.privacySettings || defaultDatabase.privacySettings;
+  }
+
+  savePrivacySettings(privacyObj) {
+    this.data.privacySettings = { ...(this.data.privacySettings || {}), ...privacyObj };
+    this.logAudit('SETTINGS_UPDATE', 'privacySettings', '', JSON.stringify(privacyObj), 'Admin', 'Privacy settings updated');
+    this.save();
+    return true;
+  }
+
+  // --- Share & Outreach Templates & Tracking ---
+  getShareTemplates() {
+    return this.data.shareTemplates || defaultDatabase.shareTemplates;
+  }
+
+  saveShareTemplate(templateData) {
+    if (!this.data.shareTemplates) this.data.shareTemplates = [];
+    const idx = this.data.shareTemplates.findIndex(t => t.id === templateData.id);
+    if (idx !== -1) {
+      this.data.shareTemplates[idx] = templateData;
+    } else {
+      this.data.shareTemplates.push(templateData);
+    }
+    this.save();
+    return true;
+  }
+
+  addShareHistory(entry) {
+    if (!this.data.shareHistory) this.data.shareHistory = [];
+    const record = {
+      id: `SHR-${Date.now()}`,
+      date: this.getDhakaFormattedDateTime(),
+      platform: entry.platform || 'General',
+      type: entry.type || 'Campaign',
+      contentSummary: entry.summary || '',
+      campaignUrl: entry.url || ''
+    };
+    this.data.shareHistory.unshift(record);
+    this.save();
+    return record;
+  }
+
+  getShareHistory() {
+    return this.data.shareHistory || [];
+  }
+
+  // --- Universal Immutable Audit Logging ---
+  logAudit(type, recordId, oldValue, newValue, changedBy = 'Admin', reason = '') {
+    if (!this.data.auditLogs) this.data.auditLogs = [];
+    const auditEntry = {
+      id: `AUD-${String(this.data.auditLogs.length + 1).padStart(4, '0')}`,
+      recordId: String(recordId),
+      type: type,
+      oldValue: String(oldValue || '-'),
+      newValue: String(newValue || '-'),
+      changedBy: changedBy,
+      reason: reason || 'Admin Operation',
+      timestamp: this.getDhakaFormattedDateTime()
+    };
+    this.data.auditLogs.unshift(auditEntry);
+    this.save();
+    return auditEntry;
   }
 
   // Add Donation Entry
@@ -1824,6 +2260,48 @@ class Database {
       return true;
     }
     return false;
+  }
+
+  // Pledge / Member Recruitment Campaign Responses
+  getPledgeResponses() {
+    if (!this.data.pledgeResponses) this.data.pledgeResponses = [];
+    return this.data.pledgeResponses;
+  }
+
+  addPledgeResponse(data) {
+    if (!this.data.pledgeResponses) this.data.pledgeResponses = [];
+    const newEntry = {
+      id: 'PLG-' + Date.now(),
+      name: data.name || 'বেনামী ভিজিটর',
+      phone: data.phone || '',
+      district: data.district || '',
+      interested: data.interested !== undefined ? data.interested : true,
+      amount: Number(data.amount) || 0,
+      frequency: data.frequency || 'Monthly', // Monthly, 3 Months, 6 Months, 12 Months, One-time
+      frequencyLabelBn: data.frequencyLabelBn || 'মাসিক',
+      opinion: data.opinion || '',
+      date: new Date().toISOString(),
+      read: false
+    };
+    this.data.pledgeResponses.unshift(newEntry);
+    this.save();
+    return newEntry;
+  }
+
+  markPledgeResponseRead(id) {
+    if (!this.data.pledgeResponses) return false;
+    const resp = this.data.pledgeResponses.find(r => r.id === id);
+    if (resp) {
+      resp.read = true;
+      this.save();
+      return true;
+    }
+    return false;
+  }
+
+  getUnreadPledgeCount() {
+    if (!this.data.pledgeResponses) return 0;
+    return this.data.pledgeResponses.filter(r => !r.read).length;
   }
 
 }

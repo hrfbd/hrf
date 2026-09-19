@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMealSponsorsBanner();
   applyDynamicImages();
   renderPublicLeadership();
+  updateNotificationBadge();
+  checkCampaignUrlParams();
   if (window.renderFullConstitution) {
     renderFullConstitution();
   }
@@ -98,6 +100,21 @@ async function applyDynamicImages() {
   const eduMedia = db.getMedia('eduActivityImage');
   if (eduMedia) {
     document.querySelectorAll('.dynamic-edu-img').forEach(img => img.src = eduMedia);
+  }
+  
+  const medicalMedia = db.getMedia('medicalActivityImage');
+  if (medicalMedia) {
+    document.querySelectorAll('.dynamic-medical-img').forEach(img => img.src = medicalMedia);
+  }
+
+  const selfRelianceMedia = db.getMedia('selfRelianceActivityImage');
+  if (selfRelianceMedia) {
+    document.querySelectorAll('.dynamic-selfreliance-img').forEach(img => img.src = selfRelianceMedia);
+  }
+
+  const elderlyMedia = db.getMedia('elderlyActivityImage');
+  if (elderlyMedia) {
+    document.querySelectorAll('.dynamic-elderly-img').forEach(img => img.src = elderlyMedia);
   }
   
   const oldAgeMedia = db.getMedia('oldAgeHomeImage');
@@ -581,19 +598,42 @@ function renderPublicNews() {
         <h3 style="font-size:1.25rem; color:var(--primary-deep); margin-bottom:1rem; line-height:1.4;">${n.title}</h3>
         <p style="font-size:0.95rem; color:var(--text-muted); line-height:1.6; white-space:pre-wrap;">${n.content}</p>
       </div>
-      <div style="margin-top:1.5rem; border-top:1px solid var(--border-color); padding-top:1rem; text-align:right;">
-        <button class="btn btn-sm" style="background:#1877F2; color:#fff; padding:0.5rem 1rem; font-weight:600;" onclick="shareOnFacebook('${n.id}', '${encodeURIComponent(n.title).replace(/'/g, "\\'")}')">
-          <i class="fab fa-facebook-f" style="margin-right:0.5rem;"></i> Share on Facebook
+      <div style="margin-top:1.5rem; border-top:1px solid var(--border-color); padding-top:1rem; display:flex; justify-content:space-between; align-items:center;">
+        <button class="btn btn-sm btn-primary" style="padding:0.4rem 0.9rem; font-weight:600;" onclick="shareNewsItem('${n.id}')">
+          <i class="fas fa-share-alt" style="margin-right:0.4rem;"></i> শেয়ার করুন
+        </button>
+        <button class="btn btn-sm" style="background:#1877F2; color:#fff; padding:0.4rem 0.8rem; font-weight:600;" onclick="shareOnFacebook('${n.id}', '${encodeURIComponent(n.title).replace(/'/g, "\\'")}')">
+          <i class="fab fa-facebook-f"></i>
         </button>
       </div>
     </div>
   `).join('');
 }
 
+function shareNewsItem(newsId) {
+  const newsList = db.getNews();
+  const n = newsList.find(item => item.id === newsId || String(item.id) === String(newsId));
+  const baseUrl = window.location.origin + window.location.pathname;
+  const newsUrl = `${baseUrl}?news=${newsId}`;
+  
+  const title = n ? `এক মুঠো খাবার ফাউন্ডেশন — ${n.title}` : 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন';
+  const summary = n ? (n.summary || (n.content ? n.content.substring(0, 120) + '...' : '')) : 'আমাদের নতুন আপডেট দেখুন।';
+  
+  openShareModal({
+    title: title,
+    summary: summary,
+    url: newsUrl
+  });
+}
+
 function shareOnFacebook(newsId, encodedTitle) {
-  // Assuming the site is hosted on the current domain.
-  const currentUrl = encodeURIComponent(window.location.href.split('#')[0]);
-  const fbShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + currentUrl + '&quote=' + encodedTitle;
+  const baseUrl = window.location.origin + window.location.pathname;
+  const newsUrl = `${baseUrl}?news=${newsId}`;
+  const fbShareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(newsUrl) + '&quote=' + encodedTitle;
+  
+  if (typeof db !== 'undefined' && db.addShareHistory) {
+    db.addShareHistory({ platform: 'facebook', type: 'News Share', summary: decodeURIComponent(encodedTitle), url: newsUrl });
+  }
   
   window.open(fbShareUrl, 'facebook-share-dialog', 'width=800,height=600');
 }
@@ -1342,6 +1382,47 @@ function submitMemberRegistration(e) {
   showMembershipTab('directory');
 }
 
+function generateMemberBio(member) {
+  if (member.bio && member.bio.trim().length > 15) {
+    return member.bio.trim();
+  }
+
+  const name = member.name || 'সম্মানিত সদস্য';
+  const village = member.district || member.address || 'রৌমারী, কুড়িগ্রাম';
+  const rawOccupation = String(member.occupation || '').trim();
+
+  // If profession is provided and non-empty
+  if (rawOccupation && rawOccupation !== 'দেওয়া হয়নি' && rawOccupation !== 'নাই' && rawOccupation !== 'N/A') {
+    const occ = rawOccupation.toLowerCase();
+
+    if (occ.includes('রেমিটেন্স') || occ.includes('প্রবাসী') || occ.includes('জাপান') || occ.includes('দুবাই') || occ.includes('ওমান') || occ.includes('সৌদি') || occ.includes('কাতার') || occ.includes('মালয়েশিয়া') || occ.includes('কুয়েত')) {
+      return `${name} একজন সম্মানিত রেমিটেন্স যোদ্ধা (${rawOccupation})। প্রবাসের কর্মব্যস্ততা ও হাড়ভাঙা পরিশ্রমের মাঝেও নিজ এলাকা (${village}) ও দেশের অবহেলিত মানুষের প্রতি তাঁর অগাধ মানবিক দায়বদ্ধতা রয়েছে। তিনি এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের একজন নিয়মিত দায়িত্বশীল সদস্য হিসেবে খাদ্য সাহায্য ও সামাজিক উন্নয়ন কার্যক্রমে সক্রিয়ভাবে অবদান রেখে চলছেন। প্রবাসে থেকেও নিজ এলাকার অনাহারী ও অসহায় মানুষের পাশে দাঁড়িয়ে মানবতার এক উজ্জ্বল দৃষ্টান্ত স্থাপন করেছেন।`;
+    }
+
+    if (occ.includes('ব্যবসা') || occ.includes('প্রোপাইটর') || occ.includes('এন্টারপ্রাইজ') || occ.includes('বণিক') || occ.includes('ট্রেডার্স') || occ.includes('শপ') || occ.includes('স্টোর')) {
+      return `${name} পেশায় একজন সফল ও সুপরিচিত ব্যবসায়ী (${rawOccupation})। ব্যবসায়িক কর্মব্যস্ততার মধ্যেও তিনি সামাজিক দায়বদ্ধতা থেকে নিজ এলাকা (${village})-এর দরিদ্র ও অবহেলিত মানুষের কল্যাণে নিবেদিত। এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের সাথে যুক্ত হয়ে তিনি অনাহারী মানুষের মুখে খাবার পৌঁছে দেওয়া এবং সামাজিক উন্নয়নমূলক বিভিন্ন কার্যক্রমে নিয়মিত অবদান রাখছেন। এলাকার সামাজিক একতা ও মানবসেবায় তাঁর ভূমিকা অতুলনীয়।`;
+    }
+
+    if (occ.includes('শিক্ষক') || occ.includes('অধ্যাপক') || occ.includes('শিক্ষার্থী') || occ.includes('ছাত্র') || occ.includes('পড়াশোনা')) {
+      return `${name} একজন সৎ, আলোকসন্ধানী ও সুশিক্ষিত ব্যক্তিত্ব (${rawOccupation})। জ্ঞানের আলো ছড়ানোর পাশাপাশি তিনি সমাজের প্রতিটি অবহেলিত মানুষের মৌলিক অধিকার নিশ্চিতের কাজে অত্যন্ত আন্তরিক। নিজ এলাকা (${village})-এ এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের মানবিক ও সমাজ উন্নয়ন কর্মসূচীতে তিনি সক্রিয় ভূমিকা রেখে চলছেন এবং সুবিধাবঞ্চিত শিশুদের শিক্ষা ও পথশিশুদের খাদ্য নিরাপত্তায় গুরুত্বপূর্ণ অবদান রাখছেন।`;
+    }
+
+    if (occ.includes('কৃষি') || occ.includes('কৃষক') || occ.includes('খামারী')) {
+      return `${name} পেশায় একজন কঠোর পরিশ্রমী ও নিবেদিতপ্রাণ কৃষি অনুরাগী (${rawOccupation})। মাটির সাথে সম্পৃক্ত থেকে উৎপাদনমুখী কাজের পাশাপাশি সমাজের অবহেলিত খেটে খাওয়া মানুষের প্রতি তাঁর রয়েছে গভীর সহানুভূতি। এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের মানবিক কল্যাণ ও সামাজিক উন্নয়ন মিশনে তিনি সবসময় অগ্রণী ভূমিকা পালন করেন এবং নিজ এলাকা (${village})-এর দরিদ্র মানুষের পাশে দাঁড়িয়েছেন।`;
+    }
+
+    if (occ.includes('স্বেচ্ছাসেবক') || occ.includes('সমাজসেবক') || occ.includes('সমাজসেবা')) {
+      return `${name} একজন মানবতাবাদী ও নিবেদিতপ্রাণ সমাজকর্মী (${rawOccupation})। সমাজের সুবিধাবঞ্চিত ও অনাহারী মানুষের মুখে হাসি ফোটাতে তিনি নিঃস্বার্থভাবে কাজ করে যাচ্ছেন। এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের দায়িত্বশীল সদস্য হিসেবে তিনি নিজ এলাকা (${village}) সহ বিভিন্ন স্থানে খাদ্য বিতরণ, প্রবীণ সেবা ও সামাজিক পুনর্গঠনমূলক উদ্যোগে সার্বক্ষণিক নিয়োজিত রয়েছেন।`;
+    }
+
+    // Default with profession
+    return `${name} পেশাগতভাবে ${rawOccupation} হিসেবে নিয়োজিত রয়েছেন। কর্মজীবনের পাশাপাশি নিজ এলাকা (${village})-এর উন্নয়ন ও অসহায় মানুষের মুখে হাসি ফোটাতে তিনি সদা সচেষ্ট। এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের মাধ্যমে তিনি এলাকার সুবিধাবঞ্চিত মানুষের পাশে দাঁড়িয়ে সামাজিক উন্নয়নমূলক বিভিন্ন কর্মকাণ্ডে নিয়মিত অবদান রেখে চলছেন।`;
+  }
+
+  // If NO profession exists or empty/unspecified:
+  return `${name} নিজ এলাকা ${village}-এর একজন সচেতন ও নিবেদিতপ্রাণ নাগরিক। পেশাগত তথ্যের ঊর্ধ্বে উঠে তিনি নিজ গ্রাম ও আশেপাশের বিভিন্ন সামাজিক উন্নয়নমূলক কর্মকাণ্ড এবং অবহেলিত মানুষের সহায়তায় সক্রিয়ভাবে নিয়োজিত থাকেন। এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের একজন নিয়মিত দায়িত্বশীল সদস্য হিসেবে তিনি এলাকার অসহায় পরিবার ও ক্ষুধার্ত মানুষের পাশে দাঁড়িয়ে আত্মমানবতার সেবায় আত্মনিয়োগ করেছেন।`;
+}
+
 function showMemberProfile(memberId) {
   const members = db.getMembers();
   const member = members.find(m => m.id === memberId);
@@ -1355,6 +1436,7 @@ function showMemberProfile(memberId) {
 
   const cleanPhone = db.cleanPhone(member.phone);
   const formattedAmount = Number(member.amount || 0).toLocaleString();
+  const bioText = generateMemberBio(member);
 
   const html = `
     <div style="text-align:center; margin-bottom:1.5rem;">
@@ -1363,13 +1445,23 @@ function showMemberProfile(memberId) {
       <span class="badge badge-verified" style="font-size:0.85rem; padding: 4px 12px;">${member.typeLabelBn || member.type || 'মাসিক সদস্য'}</span>
     </div>
     
-    <div style="background:var(--bg-light); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1.5rem; border:1px solid var(--border-color);">
+    <div style="background:var(--bg-light); border-radius:var(--radius-md); padding:1.25rem; margin-bottom:1.25rem; border:1px solid var(--border-color);">
       <p style="margin-bottom:0.6rem;"><i class="fas fa-id-badge" style="width:22px; color:var(--primary-mid);"></i> <strong>আইডি:</strong> ${member.id}</p>
       <p style="margin-bottom:0.6rem;"><i class="fas fa-map-marker-alt" style="width:22px; color:var(--accent-gold);"></i> <strong>এলাকা/ঠিকানা:</strong> ${member.district || 'দেওয়া হয়নি'}</p>
       <p style="margin-bottom:0.6rem;"><i class="fas fa-briefcase" style="width:22px; color:var(--accent-blue);"></i> <strong>পেশা/পদবী:</strong> ${member.occupation || 'দেওয়া হয়নি'}</p>
       <p style="margin-bottom:0.6rem;"><i class="fas fa-phone-alt" style="width:22px; color:var(--primary-accent);"></i> <strong>মোবাইল নম্বর:</strong> <a href="tel:${member.phone}" style="color:var(--primary-deep); font-weight:600;">${member.phone}</a></p>
       <p style="margin-bottom:0.6rem;"><i class="fab fa-whatsapp" style="width:22px; color:#25D366;"></i> <strong>হোয়াটসঅ্যাপ:</strong> ${member.whatsapp || member.phone || 'দেওয়া হয়নি'}</p>
       <p style="margin-bottom:0;"><i class="fas fa-calendar-alt" style="width:22px; color:var(--text-light);"></i> <strong>যোগদানের তারিখ:</strong> ${member.joiningDate || '২০২৬-০৯-১৭'}</p>
+    </div>
+
+    <!-- 4-5 Line Dynamic Profession / Village Social Bio Box -->
+    <div style="background:rgba(15, 90, 62, 0.04); border:1px solid rgba(15, 90, 62, 0.18); border-radius:var(--radius-md); padding:1.15rem; margin-bottom:1.5rem;">
+      <h4 style="font-size:0.95rem; font-weight:700; color:var(--primary-deep); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem;">
+        <i class="fas fa-user-edit" style="color:var(--primary-mid);"></i> সদস্য পরিচিতি ও সামাজিক ভূমিকা:
+      </h4>
+      <p style="font-size:0.88rem; line-height:1.75; color:#2c3e50; text-align:justify; margin:0; font-weight:500;">
+        ${bioText}
+      </p>
     </div>
 
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; text-align:center; margin-bottom:1.5rem;">
@@ -1455,5 +1547,511 @@ window.addEventListener('appinstalled', () => {
   showToast('এক মুঠো খাবার অ্যাপ সফলভাবে আপনার ডিভাইসে ইনস্টল হয়েছে!', 'success');
   dismissPwaBanner();
 });
+
+/* ==========================================
+   NOTIFICATION SYSTEM & CAMPAIGN PLEDGE ENGINE
+   ========================================== */
+
+function checkCampaignUrlParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('invite') || urlParams.get('pledge') || urlParams.get('join') || urlParams.get('campaign')) {
+    setTimeout(() => {
+      openModal('modal-member-campaign');
+    }, 400);
+  }
+}
+
+function updateNotificationBadge() {
+  const badge = document.getElementById('header-unread-count');
+  if (!badge) return;
+  const unreadCount = (typeof db !== 'undefined' && db.getUnreadPledgeCount) ? db.getUnreadPledgeCount() : 0;
+  if (unreadCount > 0) {
+    badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function toggleNotificationDrawer() {
+  const drawer = document.getElementById('notification-drawer-overlay');
+  if (!drawer) return;
+  if (drawer.classList.contains('active')) {
+    drawer.classList.remove('active');
+  } else {
+    drawer.classList.add('active');
+    renderNotificationDrawerList();
+  }
+}
+
+function renderNotificationDrawerList() {
+  const listEl = document.getElementById('notification-drawer-list');
+  if (!listEl) return;
+  
+  const responses = (typeof db !== 'undefined' && db.getPledgeResponses) ? db.getPledgeResponses() : [];
+
+  if (responses.length === 0) {
+    listEl.innerHTML = `
+      <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+        <i class="fas fa-bell-slash" style="font-size:3rem; margin-bottom:1rem; opacity:0.4;"></i>
+        <h4 style="font-size:1.1rem; color:var(--text-main); margin-bottom:0.4rem;">কোনো প্রতিক্রিয়া পাওয়া যায়নি</h4>
+        <p style="font-size:0.85rem;">সোশ্যাল মিডিয়াতে ক্যাম্পেইন লিঙ্ক শেয়ার করুন ভিজিটরদের মতামত ও প্রতিক্রিয়া পেতে।</p>
+      </div>
+    `;
+    return;
+  }
+
+  listEl.innerHTML = responses.map(item => {
+    const isUnread = !item.read;
+    const dateStr = new Date(item.date).toLocaleDateString('bn-BD', {
+      day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    return `
+      <div class="notification-item-card ${isUnread ? 'unread' : ''}">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+          <h4 style="font-size:1rem; font-weight:700; color:var(--primary-deep); margin:0;">
+            ${item.name}
+            ${item.interested ? '<span class="badge" style="background:#059669; color:#fff; font-size:0.7rem; margin-left:6px;"><i class="fas fa-check"></i> ইচ্ছুক</span>' : '<span class="badge" style="background:#64748b; color:#fff; font-size:0.7rem; margin-left:6px;"><i class="fas fa-clock"></i> পরে ভেবে দেখব</span>'}
+          </h4>
+          <span style="font-size:0.75rem; color:var(--text-muted);">${dateStr}</span>
+        </div>
+
+        <div style="font-size:0.85rem; color:var(--text-color); margin-bottom:0.6rem; line-height:1.5;">
+          ${item.phone ? `<div><i class="fas fa-phone-alt" style="color:var(--primary-mid);"></i> <strong>ফোন:</strong> ${item.phone}</div>` : ''}
+          ${item.district ? `<div><i class="fas fa-map-marker-alt" style="color:var(--accent-gold);"></i> <strong>জেলা:</strong> ${item.district}</div>` : ''}
+          ${item.interested ? `
+            <div style="margin-top:0.3rem;">
+              <span style="background:rgba(15,90,62,0.1); color:var(--primary-deep); font-weight:700; padding:2px 8px; border-radius:4px; font-size:0.82rem;">
+                ৳ ${item.amount.toLocaleString('bn-BD')} (${item.frequencyLabelBn || 'মাসিক'})
+              </span>
+            </div>
+          ` : ''}
+          ${item.opinion ? `
+            <div style="margin-top:0.5rem; background:#fff; padding:0.6rem; border-radius:4px; border:1px dashed var(--border-color); font-style:italic; color:#475569;">
+              "${item.opinion}"
+            </div>
+          ` : ''}
+        </div>
+
+        <div style="display:flex; gap:0.5rem; margin-top:0.75rem; pt-0.5rem; border-top:1px solid rgba(0,0,0,0.06);">
+          ${item.phone ? `
+            <a href="https://wa.me/88${item.phone.replace(/[^0-9]/g, '')}" target="_blank" class="btn btn-secondary btn-sm" style="background:#25D366; color:#fff; border:none; padding:0.3rem 0.6rem; font-size:0.78rem;">
+              <i class="fab fa-whatsapp"></i> হোয়াটসঅ্যাপে কথা বলুন
+            </a>
+          ` : ''}
+          ${isUnread ? `
+            <button class="btn btn-secondary btn-sm" style="padding:0.3rem 0.6rem; font-size:0.78rem;" onclick="markNotificationRead('${item.id}')">
+              <i class="fas fa-check-double"></i> পড়া হয়েছে
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function markNotificationRead(id) {
+  if (typeof db !== 'undefined' && db.markPledgeResponseRead) {
+    db.markPledgeResponseRead(id);
+    updateNotificationBadge();
+    renderNotificationDrawerList();
+  }
+}
+
+function toggleCampaignFields(isInterested) {
+  const fields = document.getElementById('campaign-fields-wrap');
+  if (fields) {
+    fields.style.display = isInterested ? 'block' : 'none';
+  }
+}
+
+function setCampaignAmount(amt) {
+  const input = document.getElementById('campaign-amount');
+  if (input) input.value = amt;
+}
+
+function handleCampaignPledgeSubmit(e) {
+  e.preventDefault();
+  
+  const isInterestedRadio = document.querySelector('input[name="campaign_interested"]:checked');
+  const isInterested = isInterestedRadio ? isInterestedRadio.value === 'yes' : true;
+  
+  const name = document.getElementById('campaign-name').value.trim();
+  const phone = document.getElementById('campaign-phone').value.trim();
+  const district = document.getElementById('campaign-district').value.trim();
+  const opinion = document.getElementById('campaign-opinion').value.trim();
+  
+  let amount = 0;
+  let frequency = 'Monthly';
+  let frequencyLabelBn = 'মাসিক';
+
+  if (isInterested) {
+    amount = Number(document.getElementById('campaign-amount').value) || 0;
+    const freqRadio = document.querySelector('input[name="campaign_freq"]:checked');
+    if (freqRadio) {
+      frequency = freqRadio.value;
+      frequencyLabelBn = freqRadio.getAttribute('data-label') || 'মাসিক';
+    }
+  }
+
+  const responseData = {
+    name: name || (isInterested ? 'নতুন সদস্য' : 'মতামত প্রদানকারী'),
+    phone,
+    district,
+    interested: isInterested,
+    amount,
+    frequency,
+    frequencyLabelBn,
+    opinion
+  };
+
+  if (typeof db !== 'undefined' && db.addPledgeResponse) {
+    db.addPledgeResponse(responseData);
+    updateNotificationBadge();
+  }
+
+  closeModal('modal-member-campaign');
+  document.getElementById('campaign-pledge-form').reset();
+  
+  showToast('ধন্যবাদ! আপনার মূল্যবান মতামত ও অংশগ্রহণ ফাউন্ডেশনে সংরক্ষিত হয়েছে।', 'success');
+  
+  setTimeout(() => {
+    toggleNotificationDrawer();
+  }, 500);
+}
+
+/* ==========================================================================
+   Master Utilities: Copy, Share, Branded Landing & Privacy Policy
+   ========================================================================== */
+
+// 1. Copy to Clipboard with Toast Confirmation
+function copyToClipboard(text, label = 'নম্বর') {
+  if (!text) {
+    showToast('পেমেন্ট নম্বর এখনও কনফিগার করা হয়নি।', 'error');
+    return;
+  }
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`${label} সফলভাবে কপি হয়েছে!`, 'success');
+    }).catch(err => {
+      fallbackCopyText(text, label);
+    });
+  } else {
+    fallbackCopyText(text, label);
+  }
+}
+
+function fallbackCopyText(text, label) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.position = "fixed";
+  textArea.style.top = "-9999px";
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    document.execCommand('copy');
+    showToast(`${label} সফলভাবে কপি হয়েছে!`, 'success');
+  } catch (err) {
+    showToast('কপি করা সম্ভব হয়নি। অনুগ্রহ করে ম্যানুয়ালি লিখুন।', 'error');
+  }
+  document.body.removeChild(textArea);
+}
+
+// 2. Select Membership Category Card
+function selectMembershipCategoryCard(cardElem, catId, label, defaultAmt = 0) {
+  document.querySelectorAll('.membership-freq-card').forEach(c => c.classList.remove('selected'));
+  if (cardElem) cardElem.classList.add('selected');
+
+  const catInput = document.getElementById('mem-reg-cat');
+  if (catInput) catInput.value = catId;
+
+  const labelInput = document.getElementById('mem-reg-cat-label');
+  if (labelInput) labelInput.value = label;
+
+  const amtInput = document.getElementById('mem-reg-amount');
+  if (amtInput && defaultAmt > 0) amtInput.value = defaultAmt;
+}
+
+// 3. Privacy Policy & Terms Modal
+function openPrivacyPolicyModal() {
+  const settings = typeof db !== 'undefined' ? db.getPrivacySettings() : {};
+  const contact = settings.privacyContact || '01400844602';
+
+  const html = `
+    <div style="font-size:0.95rem; line-height:1.8; color:var(--text-main); text-align:justify; padding:0.5rem;">
+      <div style="text-align:center; margin-bottom:1.25rem;">
+        <div style="width:60px; height:60px; background:rgba(15,90,62,0.1); color:var(--primary-deep); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 0.5rem auto; font-size:1.8rem;">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <h3 style="color:var(--primary-deep); font-weight:800; margin:0;">গোপনীয়তা নীতি (Privacy Policy)</h3>
+        <p style="font-size:0.82rem; color:var(--text-muted);">এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন — তথ্য নিরাপত্তা নিশ্চয়তা</p>
+      </div>
+
+      <p style="margin-bottom:1rem; background:var(--bg-warm); padding:1rem; border-radius:var(--radius-md); border-left:4px solid var(--primary-mid);">
+        “আপনার ব্যক্তিগত তথ্য আমাদের কাছে অত্যন্ত গুরুত্বপূর্ণ। সদস্য, দাতা ও সহায়তাকারীদের ব্যক্তিগত তথ্য যথাযথ নিরাপত্তার সঙ্গে সংরক্ষণ করা হবে এবং আপনার অনুমতি বা আইনগত প্রয়োজন ছাড়া তৃতীয় পক্ষের কাছে বিক্রি, প্রকাশ বা শেয়ার করা হবে না।”
+      </p>
+
+      <h4 style="color:var(--primary-deep); font-size:1.05rem; margin-top:1.25rem; margin-bottom:0.4rem;">১. তথ্য সংগ্রহ ও ব্যবহার</h4>
+      <p style="margin-bottom:0.75rem;">আমরা কেবল সদস্যতা নিবন্ধন, অনুদান ভাউচার রসিদ তৈরি, এবং ফাউন্ডেশনের অফিশিয়াল নোটিশ/কার্যক্রম যোগাযোগের প্রয়োজনে নাম, মোবাইল নম্বর, পেশা ও ঠিকানা সংরক্ষণ করি।</p>
+
+      <h4 style="color:var(--primary-deep); font-size:1.05rem; margin-top:1rem; margin-bottom:0.4rem;">২. পাবলিক নাম প্রকাশ ও গোপনীয়তা</h4>
+      <p style="margin-bottom:0.75rem;">সদস্য ও দাতাগণ ইচ্ছানুযায়ী পরিচয় গোপন রাখতে পারেন। বেনামী দাতা/সদস্যদের ফোন নম্বর, হোয়াটসঅ্যাপ বা ঠিকানা ওয়েবসাইটে কখনোই সর্বসাধারণের জন্য প্রকাশ করা হয় না।</p>
+
+      <h4 style="color:var(--primary-deep); font-size:1.05rem; margin-top:1rem; margin-bottom:0.4rem;">৩. ডাটাবেজ নিরাপত্তা ও আইনি ব্যতিক্রম</h4>
+      <p style="margin-bottom:0.75rem;">ফাউন্ডেশনের ডাটাবেজ সুরক্ষিত এনক্রিপশনে সংরক্ষন করা হয়। আইনগত বাধ্যবাধকতা বা দেশের প্রচলিত আদালতের নির্দেশ ব্যতীত কোনো তথ্য বাণিজ্যিকভাবে শেয়ার করা হয় না।</p>
+
+      <div style="background:var(--bg-subtle); padding:0.85rem; border-radius:var(--radius-sm); font-size:0.85rem; color:var(--text-muted); margin-top:1.25rem;">
+        <i class="fas fa-headset"></i> গোপনীয়তা সংক্রান্ত প্রশ্ন বা তথ্য সংশোধনের জন্য যোগাযোগ করুন: <strong>${contact}</strong>
+      </div>
+    </div>
+  `;
+  openModal('গোপনীয়তা নীতি', html);
+}
+
+function openTermsModal() {
+  const html = `
+    <div style="font-size:0.95rem; line-height:1.8; color:var(--text-main); padding:0.5rem;">
+      <h3 style="color:var(--primary-deep); text-align:center; font-weight:800; margin-bottom:1rem;">ব্যবহারের শর্তাবলী (Terms of Service)</h3>
+      <p>১. এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের সমস্ত অনুদান সম্পূর্ণ স্বেচ্ছায় প্রদানকৃত।</p>
+      <p>২. অনুদান প্রদান করার পর ভাউচার ও ডিজিটাল রসিদ ইস্যু করা হয়।</p>
+      <p>৩. ফাউন্ডেশনের ওয়েবসাইট বা পেজের লোগো ও কনটেন্ট অনুমতি ছাড়া বাণিজ্যিক উদ্দেশ্যে ব্যবহার নিষিদ্ধ।</p>
+    </div>
+  `;
+  openModal('শর্তাবলী', html);
+}
+
+// 4. URL Query Deep Link Router & Branded Landing Page Handler
+function checkCampaignUrlParams() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const newsId = params.get('news');
+    const campaignId = params.get('campaign');
+    const membership = params.get('membership');
+    const supportId = params.get('support');
+
+    if (newsId && typeof db !== 'undefined') {
+      const newsList = db.getNews();
+      const newsItem = newsList.find(n => n.id === newsId);
+      if (newsItem) {
+        openBrandedLandingModal({
+          type: 'News',
+          badge: 'অফিশিয়াল নিউজ পোর্টাল',
+          title: newsItem.title,
+          content: newsItem.content,
+          image: newsItem.image,
+          primaryCtaText: 'সম্পূর্ণ নিউজটি পড়ুন',
+          primaryCtaAction: () => { showView('view-news'); }
+        });
+        return;
+      }
+    }
+
+    if (campaignId) {
+      openBrandedLandingModal({
+        type: 'Campaign',
+        badge: 'জরুরি মানবিক ক্যাম্পেইন',
+        title: 'অসহায় মানুষের পাশে দাঁড়ান — বিশেষ মানবিক আবেদন',
+        content: 'আপনার সামান্য আর্থিক সাহায্যে বহু পরিবার পাবে নতুন জীবনের আলো। আজই আমাদের মানবিক কার্যক্রমে শরিক হোন।',
+        primaryCtaText: 'ক্যাম্পেইনে অনুদান দিন',
+        primaryCtaAction: () => { showDonationModal('general'); }
+      });
+      return;
+    }
+
+    if (membership === 'apply') {
+      showView('view-membership', 'form');
+      return;
+    }
+
+    if (supportId) {
+      openBrandedLandingModal({
+        type: 'Support',
+        badge: 'জরুরি মানবিক সহায়তা',
+        title: 'এক মুঠো খাবার — মানবিক সাহায্য তহবিল',
+        content: 'আপনার সামান্য অনুদানে একজন ক্ষুধার্ত মানুষের মুখে হাসি ফুটবে।',
+        primaryCtaText: 'সহায়তা প্রদান করুন',
+        primaryCtaAction: () => { showDonationModal('food'); }
+      });
+    }
+  } catch(e) {
+    console.warn('Error checking URL params:', e);
+  }
+}
+
+// 5. Branded Landing Page Overlay Functions
+function openBrandedLandingModal(data = {}) {
+  const modal = document.getElementById('branded-landing-modal');
+  if (!modal) return;
+
+  const badgeEl = document.getElementById('landing-context-badge');
+  if (badgeEl) badgeEl.innerHTML = `<i class="fas fa-shield-alt"></i> ${data.badge || 'অফিশিয়াল মানবিক বার্তা'}`;
+
+  const titleEl = document.getElementById('landing-title');
+  if (titleEl) titleEl.innerText = data.title || 'মানবিক সহায়তার আহ্বান';
+
+  const textEl = document.getElementById('landing-content-text');
+  if (textEl) textEl.innerHTML = data.content ? data.content.replace(/\n/g, '<br>') : 'আপনার সামান্য অনুদান হাসি ফোটাতে পারে একটি সুবিধাবঞ্চিত শিশুর মুখে।';
+
+  const imgContainer = document.getElementById('landing-img-container');
+  const imgEl = document.getElementById('landing-image');
+  if (data.image && imgContainer && imgEl) {
+    imgEl.src = data.image;
+    imgContainer.style.display = 'block';
+  } else if (imgContainer) {
+    imgContainer.style.display = 'none';
+  }
+
+  const primaryBtn = document.getElementById('landing-primary-btn');
+  if (primaryBtn) {
+    primaryBtn.innerHTML = `<i class="fas fa-hand-holding-heart"></i> ${data.primaryCtaText || 'সহায়তা করুন'}`;
+    primaryBtn.onclick = () => {
+      closeBrandedLandingModal();
+      if (typeof data.primaryCtaAction === 'function') {
+        data.primaryCtaAction();
+      } else {
+        showDonationModal('general');
+      }
+    };
+  }
+
+  // Render active payment methods inside landing modal
+  renderLandingPaymentMethods();
+
+  modal.style.display = 'flex';
+}
+
+function closeBrandedLandingModal() {
+  const modal = document.getElementById('branded-landing-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function renderLandingPaymentMethods() {
+  const container = document.getElementById('landing-active-payments');
+  if (!container || typeof db === 'undefined') return;
+
+  const activeMethods = db.getPaymentMethods(true);
+  if (!activeMethods || activeMethods.length === 0) {
+    container.innerHTML = `<p style="font-size:0.88rem; color:var(--text-muted); text-align:center; width:100%;">অনুদানের পেমেন্ট তথ্য শিগগিরই আপডেট করা হবে।</p>`;
+    return;
+  }
+
+  container.innerHTML = activeMethods.map(pm => {
+    const numDisplay = pm.number ? pm.number : '(কনফিগারেশন অপেক্ষমাণ)';
+    return `
+      <div class="payment-card-item" style="padding:0.85rem; background:#fff;">
+        <span class="payment-badge">${pm.name}</span>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:4px;">${pm.accountType || ''} ${pm.bankName ? `| ${pm.bankName}` : ''}</div>
+        <div class="payment-number-row" style="font-size:0.95rem; padding:0.35rem 0.6rem;">
+          <span>${numDisplay}</span>
+          ${pm.number ? `<button class="btn-copy-num" onclick="copyToClipboard('${pm.number}', '${pm.type}')"><i class="fas fa-copy"></i> কপি</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// 6. Universal Multi-Platform Social Share Popup
+function openShareModal(shareData = {}) {
+  const modal = document.getElementById('share-popup-modal');
+  if (!modal) return;
+
+  const title = shareData.title || 'এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন';
+  const summary = shareData.summary || 'মানুষের পাশে, মানবতার জন্য — একটি মানবিক ও স্বচ্ছ ফাউন্ডেশন।';
+  const url = shareData.url || window.location.href;
+
+  const container = document.getElementById('share-buttons-container');
+  if (container) {
+    container.innerHTML = `
+      <div class="share-btn-item whatsapp" onclick="shareToPlatform('whatsapp', '${encodeURIComponent(url)}', '${encodeURIComponent(title)}', '${encodeURIComponent(summary)}')">
+        <i class="fab fa-whatsapp"></i> WhatsApp
+      </div>
+      <div class="share-btn-item messenger" onclick="shareToPlatform('messenger', '${encodeURIComponent(url)}', '${encodeURIComponent(title)}', '${encodeURIComponent(summary)}')">
+        <i class="fab fa-facebook-messenger"></i> Messenger
+      </div>
+      <div class="share-btn-item telegram" onclick="shareToPlatform('telegram', '${encodeURIComponent(url)}', '${encodeURIComponent(title)}', '${encodeURIComponent(summary)}')">
+        <i class="fab fa-telegram-plane"></i> Telegram
+      </div>
+      <div class="share-btn-item facebook" onclick="shareToPlatform('facebook', '${encodeURIComponent(url)}', '${encodeURIComponent(title)}', '${encodeURIComponent(summary)}')">
+        <i class="fab fa-facebook-f"></i> Facebook
+      </div>
+      <div class="share-btn-item twitter" onclick="shareToPlatform('twitter', '${encodeURIComponent(url)}', '${encodeURIComponent(title)}', '${encodeURIComponent(summary)}')">
+        <i class="fab fa-twitter"></i> X / Twitter
+      </div>
+      <div class="share-btn-item linkedin" onclick="shareToPlatform('linkedin', '${encodeURIComponent(url)}', '${encodeURIComponent(title)}', '${encodeURIComponent(summary)}')">
+        <i class="fab fa-linkedin-in"></i> LinkedIn
+      </div>
+      <div class="share-btn-item sms" onclick="shareToPlatform('sms', '${encodeURIComponent(url)}', '${encodeURIComponent(title)}', '${encodeURIComponent(summary)}')">
+        <i class="fas fa-sms"></i> SMS
+      </div>
+      <div class="share-btn-item email" onclick="shareToPlatform('email', '${encodeURIComponent(url)}', '${encodeURIComponent(title)}', '${encodeURIComponent(summary)}')">
+        <i class="fas fa-envelope"></i> Email
+      </div>
+      <div class="share-btn-item copy" onclick="copyToClipboard('${url}', 'লিংক')" style="grid-column: 1 / -1; flex-direction:row; gap:0.5rem;">
+        <i class="fas fa-link"></i> লিংক কপি করুন
+      </div>
+    `;
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeShareModal() {
+  const modal = document.getElementById('share-popup-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function shareToPlatform(platform, rawUrl, rawTitle, rawSummary) {
+  const url = decodeURIComponent(rawUrl);
+  const title = decodeURIComponent(rawTitle);
+  const summary = decodeURIComponent(rawSummary);
+  const fullMessage = `${title}\n${summary}\n${url}`;
+
+  if (typeof db !== 'undefined' && db.addShareHistory) {
+    db.addShareHistory({ platform, type: 'Public Share', summary: title, url });
+  }
+
+  closeShareModal();
+
+  switch (platform) {
+    case 'whatsapp':
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage)}`, '_blank');
+      break;
+    case 'messenger':
+      copyToClipboard(fullMessage, 'মেসেঞ্জার বার্তা');
+      showToast('মেসেজের সম্পূর্ণ লেখাটি কপি হয়েছে! মেসেঞ্জারে পেস্ট (Paste / Ctrl+V) করুন।', 'success', 5000);
+      setTimeout(() => {
+        window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(url)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(url)}`, '_blank');
+      }, 300);
+      break;
+    case 'telegram':
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
+      break;
+    case 'facebook':
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+      break;
+    case 'twitter':
+      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
+      break;
+    case 'linkedin':
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+      break;
+    case 'sms':
+      window.open(`sms:?body=${encodeURIComponent(fullMessage)}`, '_self');
+      break;
+    case 'email':
+      window.open(`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(fullMessage)}`, '_self');
+      break;
+    default:
+      if (navigator.share) {
+        navigator.share({ title, text: summary, url }).catch(e => console.warn(e));
+      } else {
+        copyToClipboard(url, 'লিংক');
+      }
+      break;
+  }
+}
+
 
 
