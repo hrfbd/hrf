@@ -253,29 +253,58 @@
       </div>
     </section>
 
-    <!-- Live Dynamic Statistics Cards -->
+    <!-- Live Dynamic Transparency Summary Cards -->
     <section class="section stats-section">
       <div class="container">
-        <div style="margin-bottom: 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; background: #ffffff; padding: 0.55rem 1.1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm);">
-          <span style="font-size: 0.84rem; font-weight: 700; color: var(--primary-deep);"><i class="fas fa-clock" style="color: var(--primary-accent); margin-right: 6px;"></i> আজকের লাইভ আপডেট</span>
-          <span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;"><i class="fas fa-lock" style="color: var(--accent-gold); margin-right: 5px;"></i> পূর্বের বিস্তারিত হিসাব ও অনুদানের রেকর্ড দেখতে লগইন করুন</span>
+        <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; background: #ffffff; padding: 0.85rem 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span class="transparency-live-badge"><span class="transparency-live-dot"></span> LIVE TRANSPARENCY / হিসাবের স্বচ্ছতা</span>
+          </div>
+          <div style="font-size: 0.84rem; color: var(--text-muted); font-weight: 600;">
+            <i class="fas fa-clock" style="color: var(--primary-accent); margin-right: 4px;"></i> সর্বশেষ হিসাব আপডেট: <strong id="live-trans-update-time" style="color:var(--primary-deep);">আজ, বাংলাদেশ সময়</strong>
+          </div>
         </div>
+
+        <div class="live-transparency-grid" style="margin-bottom:1.5rem;">
+          <div class="trans-card income">
+            <div class="trans-card-title">
+              <span>আজকের মোট অনুদান</span>
+              <i class="fas fa-hand-holding-usd" style="color:#047857;"></i>
+            </div>
+            <div class="trans-card-value" id="trans-card-today-inc">৳ 0</div>
+            <small style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">আজকের মোট প্রাপ্তি (Verified)</small>
+          </div>
+
+          <div class="trans-card expense">
+            <div class="trans-card-title">
+              <span>আজকের মোট খরচ</span>
+              <i class="fas fa-file-invoice-dollar" style="color:#dc2626;"></i>
+            </div>
+            <div class="trans-card-value" id="trans-card-today-exp">৳ 0</div>
+            <small style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">আজকের মানবিক ব্যয় (Verified)</small>
+          </div>
+
+          <div class="trans-card net">
+            <div class="trans-card-title">
+              <span>আজকের নিট স্থিতি</span>
+              <i class="fas fa-balance-scale" style="color:#2563eb;"></i>
+            </div>
+            <div class="trans-card-value" id="trans-card-today-net">৳ 0</div>
+            <small style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">আজকের আয় - ব্যয়</small>
+          </div>
+
+          <div class="trans-card total">
+            <div class="trans-card-title">
+              <span>মোট উপলব্ধ তহবিল</span>
+              <i class="fas fa-vault" style="color:var(--accent-gold);"></i>
+            </div>
+            <div class="trans-card-value" id="trans-card-avail-bal">৳ 0</div>
+            <small style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">ফাউন্ডেশনের সর্বমোট ব্যালেন্স</small>
+          </div>
+        </div>
+
+        <!-- Additional Operational Metrics -->
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon green"><i class="fas fa-calendar-day"></i></div>
-            <div class="stat-value" id="stat-today-inc">৳ 0</div>
-            <div class="stat-label" data-i18n="stat_today_donations">আজকের অনুদান</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon red"><i class="fas fa-receipt"></i></div>
-            <div class="stat-value" id="stat-today-exp">৳ 0</div>
-            <div class="stat-label" data-i18n="stat_today_expenses">আজকের খরচ</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon green"><i class="fas fa-wallet"></i></div>
-            <div class="stat-value" id="stat-avail-fund" style="color:var(--primary-mid);">৳ 0</div>
-            <div class="stat-label" data-i18n="stat_today_balance">আজকের অবশিষ্ট ফান্ড</div>
-          </div>
           <div class="stat-card">
             <div class="stat-icon gold"><i class="fas fa-utensils"></i></div>
             <div class="stat-value" id="stat-today-food">০ জন</div>
@@ -284,7 +313,7 @@
           <div class="stat-card">
             <div class="stat-icon blue"><i class="fas fa-users"></i></div>
             <div class="stat-value" id="stat-total-donors">0</div>
-            <div class="stat-label" data-i18n="stat_total_donors">মোট দাতা</div>
+            <div class="stat-label" data-i18n="stat_total_donors">মোট সদস্য ও দাতা</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon green"><i class="fas fa-user-friends"></i></div>
@@ -549,21 +578,56 @@
               </div>
             </div>
 
+            <!-- New Separate Membership Category Selection Cards -->
+            <div class="form-group" style="margin-top:1.25rem; margin-bottom:1.5rem;">
+              <label class="form-label" style="font-weight:700; color:var(--primary-deep); font-size:0.98rem; display:block; margin-bottom:0.6rem;">
+                <i class="fas fa-layer-group" style="color:var(--primary-mid);"></i> নতুন সদস্যপদের ক্যাটাগরি নির্বাচন করুন *
+              </label>
+              <div class="membership-freq-grid" id="membership-category-cards">
+                <div class="membership-freq-card selected" onclick="selectMembershipCategoryCard(this, 'monthly', 'মাসিক সদস্য', 0)">
+                  <div class="membership-freq-title"><i class="fas fa-calendar-alt"></i> মাসিক সদস্য</div>
+                  <div class="membership-freq-subtitle">প্রতি ১ মাসে ১ বার</div>
+                  <small style="color:var(--primary-accent); font-weight:700; display:block; margin-top:4px;" id="cat-amt-monthly">৳ 0 / মাস</small>
+                </div>
+                <div class="membership-freq-card" onclick="selectMembershipCategoryCard(this, 'quarterly', 'ত্রৈমাসিক সদস্য', 0)">
+                  <div class="membership-freq-title"><i class="fas fa-clock"></i> ত্রৈমাসিক সদস্য</div>
+                  <div class="membership-freq-subtitle">প্রতি ৩ মাসে ১ বার</div>
+                  <small style="color:var(--primary-accent); font-weight:700; display:block; margin-top:4px;" id="cat-amt-quarterly">৳ 0 / ৩ মাস</small>
+                </div>
+                <div class="membership-freq-card" onclick="selectMembershipCategoryCard(this, 'half_yearly', 'ষান্মাসিক সদস্য', 0)">
+                  <div class="membership-freq-title"><i class="fas fa-calendar-check"></i> ষান্মাসিক সদস্য</div>
+                  <div class="membership-freq-subtitle">প্রতি ৬ মাসে ১ বার</div>
+                  <small style="color:var(--primary-accent); font-weight:700; display:block; margin-top:4px;" id="cat-amt-half_yearly">৳ 0 / ৬ মাস</small>
+                </div>
+                <div class="membership-freq-card" onclick="selectMembershipCategoryCard(this, 'yearly', 'বার্ষিক সদস্য', 0)">
+                  <div class="membership-freq-title"><i class="fas fa-calendar-star"></i> বার্ষিক সদস্য</div>
+                  <div class="membership-freq-subtitle">প্রতি ১২ মাসে ১ বার</div>
+                  <small style="color:var(--primary-accent); font-weight:700; display:block; margin-top:4px;" id="cat-amt-yearly">৳ 0 / বছর</small>
+                </div>
+                <div class="membership-freq-card" onclick="selectMembershipCategoryCard(this, 'lifetime', 'আজীবন / এককালীন সদস্য', 0)">
+                  <div class="membership-freq-title"><i class="fas fa-crown" style="color:var(--accent-gold);"></i> আজীবন / এককালীন</div>
+                  <div class="membership-freq-subtitle">জীবনে একবার (এককালীন)</div>
+                  <small style="color:var(--accent-gold); font-weight:700; display:block; margin-top:4px;" id="cat-amt-lifetime">এককালীন ৳ 0</small>
+                </div>
+              </div>
+              <input type="hidden" id="mem-reg-cat" value="monthly">
+              <input type="hidden" id="mem-reg-cat-label" value="মাসিক সদস্য">
+            </div>
+
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
               <div class="form-group">
-                <label class="form-label">সদস্যপদের ক্যাটাগরি (Membership Category)</label>
-                <select id="mem-reg-cat" class="form-control">
-                  <option value="monthly">Monthly Responsibility Member (মাসে ১ দিন খাবার ফান্ড)</option>
-                  <option value="3m">৩ মাসের দাতা সদস্য</option>
-                  <option value="6m">৬ মাসের দাতা সদস্য</option>
-                  <option value="12m">১২ মাসের দাতা সদস্য</option>
-                  <option value="volunteer">স্বেচ্ছাসেবক সদস্য (Volunteer)</option>
-                  <option value="special">বিশেষ সুহৃদ সদস্য</option>
-                </select>
+                <label class="form-label">অনুদানের পরিমাণ (Donation Amount) ৳ *</label>
+                <input type="number" id="mem-reg-amount" class="form-control" placeholder="যেমন: 1000" min="0" required>
               </div>
               <div class="form-group">
-                <label class="form-label">অনুদানের পরিমাণ (Donation Amount) ৳</label>
-                <input type="number" id="mem-reg-amount" class="form-control" placeholder="যেমন: 1000">
+                <label class="form-label">পছন্দের পেমেন্ট মাধ্যম (Payment Method)</label>
+                <select id="mem-reg-payment-method" class="form-control">
+                  <option value="bKash">bKash (বিকাশ)</option>
+                  <option value="Nagad">Nagad (নগদ)</option>
+                  <option value="Rocket">Rocket (রকেট)</option>
+                  <option value="Bank">Bank Transfer (ব্যাংক)</option>
+                  <option value="Cash">Cash (নগদ জমা)</option>
+                </select>
               </div>
             </div>
 
@@ -615,8 +679,29 @@
               <input type="text" id="mem-reg-address" class="form-control" placeholder="আপনার বর্তমান জেলা ও এলাকা">
             </div>
 
+            <!-- Mandatory Privacy Consent & Privacy Policy Link -->
+            <div class="form-group" style="margin-top: 1.25rem; background:rgba(15, 90, 62, 0.04); padding:1.25rem; border-radius:var(--radius-md); border:1px solid rgba(15, 90, 62, 0.15);">
+              <label style="display:block; font-weight:700; color:var(--primary-deep); margin-bottom:0.75rem;">
+                <i class="fas fa-user-shield" style="color:var(--primary-mid);"></i> তথ্য সুরক্ষা ও গোপনীয়তা সম্মতি (Privacy & Consent)
+              </label>
+
+              <label class="checkbox-group" style="margin-bottom:0.75rem; display:flex; align-items:flex-start; gap:0.5rem; font-size:0.9rem;">
+                <input type="checkbox" id="mem-reg-privacy-consent" required style="margin-top:0.2rem;">
+                <span style="line-height:1.4;">আমি সম্মত যে, সদস্যতার প্রশাসনিক কার্যক্রমের জন্য আমার প্রদত্ত তথ্য ফাউন্ডেশন সংরক্ষণ ও ব্যবহার করতে পারবে। *</span>
+              </label>
+
+              <label class="checkbox-group" style="margin-bottom:0.75rem; display:flex; align-items:flex-start; gap:0.5rem; font-size:0.9rem;">
+                <input type="checkbox" id="mem-reg-comm-consent" checked style="margin-top:0.2rem;">
+                <span style="line-height:1.4; color:var(--text-main);">প্রয়োজনীয় কার্যক্রম/আপডেট সম্পর্কিত যোগাযোগ পেতে আমি সম্মত।</span>
+              </label>
+
+              <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">
+                <i class="fas fa-shield-alt" style="color:var(--primary-accent);"></i> আপনার ব্যক্তিগত তথ্য আমাদের কাছে নিরাপদ। বিস্তারিত জানতে <a href="javascript:void(0)" onclick="openPrivacyPolicyModal()" style="color:var(--primary-mid); font-weight:700; text-decoration:underline;">গোপনীয়তা নীতি পড়ুন</a>।
+              </div>
+            </div>
+
             <div class="form-group" style="margin-top: 1rem;">
-              <label style="display:block; font-weight:600; margin-bottom:0.75rem;">পরিচয় প্রকাশের ধরন (Privacy Option)</label>
+              <label style="display:block; font-weight:600; margin-bottom:0.75rem;">পাবলিক ডিরেক্টরিতে নাম প্রদর্শনের পছন্দ (Public Recognition)</label>
               <div style="display:flex; flex-direction:column; gap:0.75rem; background:rgba(230, 126, 34, 0.05); padding:1rem; border-radius:var(--radius-sm); border:1px solid rgba(230, 126, 34, 0.2);">
                 <label class="checkbox-group">
                   <input type="radio" name="mem_privacy" id="mem-public-check" value="public" checked>
@@ -629,7 +714,7 @@
               </div>
             </div>
             <button type="submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:1rem;">
-              <i class="fas fa-user-check"></i> সদস্যপদ নিশ্চিত করুন
+              <i class="fas fa-user-check"></i> সদস্যপদ আবেদন জমা দিন
             </button>
           </form>
         </div>
@@ -655,20 +740,61 @@
     </section>
   </div>
 
-  <!-- 4. TRANSPARENCY CENTER VIEW (PROTECTED IN ADMIN PANEL) -->
+  <!-- 4. TRANSPARENCY CENTER VIEW -->
   <div id="view-transparency" class="view-section" style="display:none;">
     <section class="section">
-      <div class="container" style="max-width:680px; text-align:center; padding:3.5rem 2rem; background:#fff; border-radius:var(--radius-lg); box-shadow:var(--shadow-md); border:1px solid var(--border-color); margin:3rem auto;">
-        <div style="width:76px; height:76px; border-radius:50%; background:rgba(15, 90, 62, 0.1); color:var(--primary-deep); display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 1.5rem;">
-          <i class="fas fa-shield-alt"></i>
+      <div class="container">
+        <h2 class="section-title">লাইভ হিসাবের স্বচ্ছতা (Live Transparency)</h2>
+        <p class="section-subtitle">এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশনের সর্বমোট হিসাব ও ফান্ডের প্রকৃত লাইভ স্থিতি।</p>
+
+        <!-- Live Summary Grid -->
+        <div class="transparency-summary-container">
+          <div class="transparency-header-bar">
+            <span class="transparency-live-badge"><span class="transparency-live-dot"></span> লাইভ স্বচ্ছতা সামারি</span>
+            <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600;"><i class="fas fa-clock" style="color:var(--primary-accent);"></i> সর্বশেষ আপডেট: <strong id="trans-view-update-time" style="color:var(--primary-deep);">আজ, বাংলাদেশ সময়</strong></span>
+          </div>
+
+          <div class="live-transparency-grid">
+            <div class="trans-card income">
+              <div class="trans-card-title"><span>আজকের মোট অনুদান</span><i class="fas fa-hand-holding-usd" style="color:#047857;"></i></div>
+              <div class="trans-card-value" id="trans-page-today-inc">৳ 0</div>
+              <small style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">অনুমোদিত ভাউচার</small>
+            </div>
+            <div class="trans-card expense">
+              <div class="trans-card-title"><span>আজকের মোট খরচ</span><i class="fas fa-file-invoice-dollar" style="color:#dc2626;"></i></div>
+              <div class="trans-card-value" id="trans-page-today-exp">৳ 0</div>
+              <small style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">অনুমোদিত ভাউচার</small>
+            </div>
+            <div class="trans-card net">
+              <div class="trans-card-title"><span>আজকের নিট স্থিতি</span><i class="fas fa-balance-scale" style="color:#2563eb;"></i></div>
+              <div class="trans-card-value" id="trans-page-today-net">৳ 0</div>
+              <small style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">আজকের আয় - ব্যয়</small>
+            </div>
+            <div class="trans-card total">
+              <div class="trans-card-title"><span>মোট উপলব্ধ তহবিল</span><i class="fas fa-vault" style="color:var(--accent-gold);"></i></div>
+              <div class="trans-card-value" id="trans-page-avail-bal">৳ 0</div>
+              <small style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">ফাউন্ডেশনের ব্যালেন্স</small>
+            </div>
+          </div>
         </div>
-        <h2 style="font-size:1.75rem; color:var(--primary-deep); font-weight:700; margin-bottom:0.85rem;">হিসাবের স্বচ্ছতা ও অডিট প্যানেল (সুরক্ষিত)</h2>
-        <p style="font-size:1rem; color:var(--text-muted); line-height:1.8; margin-bottom:2rem;">
-          ভাউচার ভিত্তিক সর্বমোট অনুদান, ব্যয়ের খতিয়ান, ডিজিটাল রসিদ ও অডিটিং সংক্রান্ত সমস্ত বিস্তারিত হিসাব এডমিন অডিট প্যানেলে স্থানান্তর করা হয়েছে। প্রয়োজনীয় এনকোয়ারি বা অডিটের জন্য এডমিন অ্যাকাউন্টে লগইন করুন।
-        </p>
-        <button class="btn btn-primary btn-lg" onclick="showView('view-admin')" style="padding:0.85rem 2.25rem; font-size:1.05rem; border-radius:50px;">
-          <i class="fas fa-key" style="margin-right:8px;"></i> এডমিন প্যানেলে লগইন করুন
-        </button>
+
+        <!-- Dynamic Fund Balance Cards -->
+        <h3 style="color:var(--primary-deep); font-size:1.4rem; font-weight:700; margin-bottom:1.25rem;">
+          <i class="fas fa-wallet" style="color:var(--accent-gold);"></i> ফান্ডের বর্তমান অবস্থা (Fund Breakdown)
+        </h3>
+        <div class="card-grid" id="public-fund-cards-container" style="margin-bottom:2.5rem;">
+          <!-- Rendered dynamically by js/transparency.js -->
+        </div>
+
+        <!-- Detailed Audit Notice for Admin -->
+        <div style="background:#fff; border-radius:var(--radius-lg); border:1px solid var(--border-color); padding:2rem; text-align:center; box-shadow:var(--shadow-sm);">
+          <i class="fas fa-file-invoice-dollar" style="font-size:2.5rem; color:var(--primary-mid); margin-bottom:0.75rem;"></i>
+          <h4 style="font-size:1.2rem; color:var(--primary-deep); font-weight:700; margin-bottom:0.5rem;">আইটেমওয়াইজ ভাউচার ও বিস্তারিত হিসাব</h4>
+          <p style="font-size:0.9rem; color:var(--text-muted); max-width:550px; margin:0 auto 1.25rem auto;">
+            দাতাদের গোপনীয়তা রক্ষার্থে এবং প্রাতিষ্ঠানিক নিরাপত্তার জন্য প্রতিটি ট্রানজেকশনের সম্পূর্ণ ডাটাবেজ অডিট খতিয়ান এডমিন প্যানেলে সংরক্ষিত রয়েছে।
+          </p>
+          <button class="btn btn-primary" onclick="showView('view-admin')"><i class="fas fa-user-shield"></i> এডমিন অডিট প্যানেলে প্রবেশ</button>
+        </div>
       </div>
     </section>
   </div>
@@ -1203,6 +1329,69 @@
         <!-- Rendered by js/app.js -->
       </div>
     </section>
+  </div>
+
+  <!-- BRANDED LANDING PAGE OVERLAY MODAL -->
+  <div id="branded-landing-modal" class="branded-landing-overlay" style="display:none;" onclick="if(event.target===this) closeBrandedLandingModal()">
+    <div class="branded-landing-card">
+      <div class="branded-landing-header">
+        <button onclick="closeBrandedLandingModal()" style="position:absolute; top:15px; right:18px; background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;" title="বন্ধ করুন"><i class="fas fa-times"></i></button>
+        <img id="landing-logo-img" src="img/logo.jpg" alt="Foundation Logo" class="branded-landing-logo" onclick="closeBrandedLandingModal(); showView('view-home');" title="অফিশিয়াল হোমপেজে যান">
+        <h3 id="landing-foundation-name" style="font-size:1.35rem; color:#fff; font-weight:800; margin:0;">এক মুঠো খাবার ও পুনর্বাসন ফাউন্ডেশন</h3>
+        <p style="font-size:0.85rem; color:var(--accent-gold); margin-top:3px; margin-bottom:0; font-weight:600;">A Handful of Food and Rehabilitation Foundation (HRF)</p>
+      </div>
+      <div class="branded-landing-body">
+        <div style="text-align:center; margin-bottom:1.25rem;">
+          <span class="badge badge-verified" id="landing-context-badge" style="font-size:0.85rem; padding:0.4rem 0.85rem;"><i class="fas fa-shield-alt"></i> অফিশিয়াল মানবিক বার্তা</span>
+          <h2 id="landing-title" style="font-size:1.5rem; color:var(--primary-deep); font-weight:800; margin-top:0.6rem; margin-bottom:0.5rem;">মানবিক সহায়তার আহ্বান</h2>
+        </div>
+
+        <div id="landing-img-container" style="display:none; text-align:center; margin-bottom:1.25rem;">
+          <img id="landing-image" src="" alt="Campaign Image" style="max-height:220px; width:100%; object-fit:cover; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+        </div>
+
+        <div id="landing-content-text" style="font-size:1rem; line-height:1.7; color:var(--text-main); background:var(--bg-warm); padding:1.25rem; border-radius:var(--radius-md); border:1px solid var(--border-color); margin-bottom:1.5rem; text-align:justify;">
+          <!-- Dynamic Content Text -->
+        </div>
+
+        <!-- Dynamic Payment CTA Options inside Landing Modal -->
+        <div id="landing-payment-container" class="payment-section-box" style="margin-bottom:1.5rem; padding:1.25rem;">
+          <h4 style="font-size:1.05rem; font-weight:700; color:var(--primary-deep); margin-bottom:0.5rem; text-align:center;">
+            <i class="fas fa-heart" style="color:var(--accent-red);"></i> সরাসরি অনুদানের উপায় (Payment Methods)
+          </h4>
+          <div id="landing-active-payments" class="payment-methods-grid">
+            <!-- Active payment options will render here -->
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <button id="landing-primary-btn" class="btn btn-primary btn-lg" style="width:100%; justify-content:center;" onclick="closeBrandedLandingModal(); showDonationModal('general');">
+            <i class="fas fa-hand-holding-heart"></i> সহায়তা করুন
+          </button>
+          <button class="btn btn-secondary" style="width:100%; justify-content:center;" onclick="closeBrandedLandingModal(); showView('view-home');">
+            <i class="fas fa-globe"></i> ফাউন্ডেশনের মূল ওয়েবসাইট দেখুন
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHARE POPUP MODAL -->
+  <div id="share-popup-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) closeShareModal()">
+    <div class="modal-container" style="max-width:520px; padding:1.75rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:1.25rem;">
+        <h3 style="margin:0; font-size:1.2rem; color:var(--primary-deep);"><i class="fas fa-share-alt" style="color:var(--primary-accent);"></i> সোশ্যাল শেয়ার করুন</h3>
+        <button onclick="closeShareModal()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--text-muted);">&times;</button>
+      </div>
+
+      <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:1rem;" id="share-modal-summary">
+        মানবিক বার্তার লিংক ও কনটেন্ট সরাসরি শেয়ার করুন:
+      </p>
+
+      <div class="share-options-grid" id="share-buttons-container">
+        <!-- JS Populated Buttons -->
+      </div>
+    </div>
   </div>
 
   <!-- GLOBAL MODAL OVERLAY -->
